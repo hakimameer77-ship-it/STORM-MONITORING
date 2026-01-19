@@ -3,186 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STORM-WATCH | Advanced Lightning Monitoring</title>
+    <title>STORM-WATCH | AI Monitoring</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        :root {
-            --primary: #ffae00;
-            --secondary: #00d2ff;
-            --bg-body: #ffffff;
-            --text-dark: #333;
-            --glass: rgba(255, 255, 255, 0.1);
-        }
-
+        :root { --primary: #ffae00; --accent: #00d2ff; --dark: #0b0e11; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-dark); scroll-behavior: smooth; overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; background: #fff; color: #333; line-height: 1.6; overflow-x: hidden; }
 
-        /* --- SECTION 1: HEADER & HERO --- */
-        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 8%; background: #fff; position: sticky; top: 0; z-index: 100; }
-        .logo { display: flex; align-items: center; gap: 12px; }
-        .logo-hex { background: var(--primary); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
+        /* --- 1. HEADER & HERO (Logo & Banner) --- */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 5%; background: #fff; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-box { background: var(--primary); width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
         
-        .hero-container { padding: 0 5% 60px; background: #fff; }
-        .hero-banner { width: 100%; height: 550px; border-radius: 40px; overflow: hidden; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.2); }
-        .hero-banner img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); }
-        .hero-text { position: absolute; bottom: 60px; left: 60px; color: white; }
+        .hero { padding: 0 5% 50px; }
+        .hero-img { width: 100%; height: 500px; border-radius: 30px; object-fit: cover; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .hero-content { position: relative; margin-top: -150px; padding-left: 50px; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
 
-        /* --- SECTION 2: HOW IT WORKS --- */
-        .how-it-works { padding: 100px 8%; text-align: center; }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 50px; margin-top: 60px; }
-        .step-card img { width: 120px; margin-bottom: 25px; }
+        /* --- 2. HOW IT WORKS (Icons) --- */
+        .how-works { padding: 80px 5%; text-align: center; }
+        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-top: 50px; }
+        .step img { width: 100px; margin-bottom: 20px; }
 
-        /* --- SECTION 3: ANIMATED BACKGROUND (A MASTER WATCHER) --- */
-        .animated-bg-section { position: relative; min-height: 90vh; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; padding: 80px 20px; color: white; text-align: center; }
-        #bg-video { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; z-index: -1; transform: translate(-50%, -50%); filter: brightness(0.35); }
-        .glass-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; width: 100%; max-width: 1100px; margin-top: 50px; }
-        .glass-card { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); border-radius: 30px; padding: 40px; transition: 0.4s; }
-        .glass-card:hover { transform: translateY(-15px); background: rgba(255,255,255,0.2); }
+        /* --- 3. MASTER WATCHER (Video Background) --- */
+        .video-sec { position: relative; padding: 100px 5%; color: white; text-align: center; min-height: 80vh; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+        #bg-vid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; filter: brightness(0.4); }
+        .glass-box { background: rgba(255,255,255,0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 30px; }
 
-        /* --- SECTION 4: TRY IT OUT --- */
-        .try-it { padding: 100px 8%; background: #fff; text-align: center; }
-        .demo-flex { display: flex; justify-content: center; gap: 40px; margin-top: 50px; flex-wrap: wrap; }
-        .demo-box { background: #f9f9f9; border-radius: 35px; padding: 30px; width: 100%; max-width: 520px; cursor: pointer; border: 2px solid transparent; transition: 0.4s; }
-        .demo-box:hover { border-color: var(--primary); box-shadow: 0 30px 60px rgba(0,0,0,0.1); }
-        .demo-box img { width: 100%; border-radius: 20px; margin-bottom: 20px; }
+        /* --- 4. TRY IT OUT (Cards) --- */
+        .try-it { padding: 80px 5%; text-align: center; background: #fff; }
+        .demo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 40px; }
+        .demo-card { background: #f8f9fa; border-radius: 25px; padding: 25px; cursor: pointer; transition: 0.3s; border: 2px solid transparent; }
+        .demo-card:hover { border-color: var(--primary); transform: translateY(-10px); }
 
-        /* --- SECTION 5: OUR MISSION --- */
-        .mission { padding: 100px 8%; background: #fdfdfd; }
-        .mission-box { background: #f1f3f5; border-radius: 40px; padding: 80px 40px; position: relative; }
-        .t-line { position: relative; height: 4px; background: linear-gradient(to right, #adb5bd, #ffae00, #00ff88); margin: 50px auto; max-width: 800px; display: flex; justify-content: space-between; align-items: center; }
-        .dot { width: 22px; height: 22px; border-radius: 50%; border: 4px solid #f1f3f5; }
+        /* --- 5. MISSION (Timeline) --- */
+        .mission { padding: 80px 5%; background: #fdfdfd; }
+        .line-box { height: 4px; background: linear-gradient(to right, #ccc, #ffae00, #00ff88); margin: 40px auto; max-width: 800px; display: flex; justify-content: space-between; align-items: center; }
+        .dot { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 4px solid #ffae00; }
 
-        /* --- DASHBOARD SECTION --- */
-        #dashboard { padding: 100px 8%; background: #0b0e11; color: white; border-radius: 60px 60px 0 0; }
-        .db-card { background: #151921; padding: 30px; border-radius: 25px; border: 1px solid #222; text-align: center; }
-        .val { font-size: 3rem; font-weight: 800; color: var(--secondary); margin: 10px 0; }
+        /* --- DASHBOARD (Dark Mode) --- */
+        #monitoring { background: var(--dark); color: white; padding: 80px 5%; border-radius: 50px 50px 0 0; }
+        .stat-card { background: #1a1f26; padding: 30px; border-radius: 20px; text-align: center; }
+        .big-val { font-size: 3rem; font-weight: 800; color: var(--accent); }
     </style>
 </head>
 <body>
 
     <header>
         <div class="logo">
-            <div class="logo-hex"><i class="fas fa-bolt" style="color: white;"></i></div>
-            <h1 style="font-size: 26px; font-weight: 800;">STORM<span style="color:var(--primary)">WATCH</span></h1>
+            <div class="logo-box"><i class="fas fa-bolt" style="color:white"></i></div>
+            <h1 style="font-weight:800">STORM<span style="color:var(--primary)">WATCH</span></h1>
         </div>
-        <p style="color: #666; font-size: 14px; text-align: right;">Redefining Safety with<br>Artificial Intelligence</p>
+        <p style="text-align:right; font-size:12px">Redefining Safety with AI</p>
     </header>
 
-    <section class="hero-container">
-        <div class="hero-banner">
-            <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80">
-            <div class="hero-text">
-                <h2 style="font-size: 4rem; font-weight: 800;">Real-Time Detection</h2>
-                <p style="font-size: 1.2rem; opacity: 0.9;">Advanced IoT Monitoring for UTHM Community</p>
-            </div>
+    <section class="hero">
+        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200" class="hero-img">
+        <div class="hero-content">
+            <h2 style="font-size: 3rem; font-weight:800">Real-Time Detection</h2>
+            <p>Advanced IoT Monitoring for UTHM</p>
         </div>
     </section>
 
-    <section class="how-it-works">
-        <h2 style="font-size: 2.5rem;">How It Works</h2>
-        <p style="color: #666;">Simple, powerful AI that transforms how you monitor lightning</p>
-        <div class="grid-3">
-            <div class="step-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/2540/2540201.png">
-                <h3>Install & Connect</h3>
-                <p style="color:#888; margin-top:10px;">Place sensors at your location and connect to the platform.</p>
-            </div>
-            <div class="step-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/2103/2103633.png">
-                <h3>AI Analysis</h3>
-                <p style="color:#888; margin-top:10px;">Our system analyzes atmospheric patterns to detect threats.</p>
-            </div>
-            <div class="step-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/4230/4230756.png">
-                <h3>Actionable Insights</h3>
-                <p style="color:#888; margin-top:10px;">Receive alerts so you can protect your community.</p>
-            </div>
+    <section class="how-works">
+        <h2>How It Works</h2>
+        <div class="steps">
+            <div class="step"><img src="https://cdn-icons-png.flaticon.com/512/2540/2540201.png"><h3>Connect</h3></div>
+            <div class="step"><img src="https://cdn-icons-png.flaticon.com/512/2103/2103633.png"><h3>AI Analysis</h3></div>
+            <div class="step"><img src="https://cdn-icons-png.flaticon.com/512/4230/4230756.png"><h3>Alerts</h3></div>
         </div>
     </section>
 
-    <section class="animated-bg-section">
-        <video autoplay muted loop id="bg-video">
+    <section class="video-sec">
+        <video autoplay muted loop id="bg-vid">
             <source src="https://assets.mixkit.co/videos/preview/mixkit-clouds-and-lightning-in-the-dark-sky-32863-large.mp4" type="video/mp4">
         </video>
-        <h2 style="font-size: 3.5rem; font-weight: 800;">A master watcher<br>over your safety 24/7</h2>
-        <div class="glass-grid">
-            <div class="glass-card"><i class="fas fa-shield-alt fa-2x"></i><h3>Prevent Hazards</h3></div>
-            <div class="glass-card"><i class="fas fa-clock fa-2x"></i><h3>24/7 Monitoring</h3></div>
-            <div class="glass-card"><i class="fas fa-mobile-alt fa-2x"></i><h3>Instant Alerts</h3></div>
+        <h2 style="font-size:2.5rem; font-weight:800; margin-bottom:40px">A master watcher 24/7</h2>
+        <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:20px">
+            <div class="glass-box"><h3>24/7</h3></div>
+            <div class="glass-box"><h3>Secure</h3></div>
+            <div class="glass-box"><h3>Alert</h3></div>
         </div>
     </section>
 
     <section class="try-it">
-        <h2 style="font-size: 2.5rem;">Try It Out</h2>
-        <div class="demo-flex">
-            <div class="demo-box" onclick="document.getElementById('dashboard').scrollIntoView({behavior: 'smooth'})">
-                <span style="color:var(--primary); font-weight:bold;">• INTERACTIVE DEMO •</span>
-                <img src="https://i.postimg.cc/44Yfyk6j/dashboard-preview.png" style="margin-top:20px;">
-                <h3>Live Monitoring Dashboard</h3>
+        <h2>Try It Out</h2>
+        <div class="demo-grid">
+            <div class="demo-card" onclick="window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'})">
+                <p style="color:var(--primary); font-weight:bold">INTERACTIVE DEMO</p>
+                <div style="height:150px; background:#ddd; border-radius:15px; margin:20px 0"></div>
+                <h3>Live Dashboard</h3>
             </div>
-            <div class="demo-box" style="background:#000; color:white;">
-                <span style="color:var(--primary); font-weight:bold;">• AI STORM CHAT •</span>
-                <div style="height:250px; display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:800;">Ask<br>STORM</div>
+            <div class="demo-card" style="background:#000; color:white">
+                <p style="color:var(--primary); font-weight:bold">AI CHAT</p>
+                <h3 style="margin-top:50px">Ask STORM</h3>
             </div>
         </div>
     </section>
 
     <section class="mission">
-        <h2 style="margin-bottom:30px; opacity:0.6;">Our Mission</h2>
-        <div class="mission-box">
-            <h3>Protecting the communities that sustain our world</h3>
-            <div class="t-line">
-                <div class="dot" style="background:#adb5bd;"></div>
-                <div class="dot" style="background:#ffae00;"></div>
-                <div class="dot" style="background:#00ff88;"></div>
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px;">
-                <div><h4>The Challenge</h4><p>High strike frequency risks.</p></div>
-                <div><h4>Our Solution</h4><p>AI-powered IoT sensors.</p></div>
-                <div><h4>Global Impact</h4><p>Safety and peace of mind.</p></div>
-            </div>
+        <h2>Our Mission</h2>
+        <div class="line-box">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
         </div>
+        <p style="text-align:center">Protecting the communities that sustain our world</p>
     </section>
 
-    <section id="dashboard">
-        <h2 style="margin-bottom:40px;">Real-Time Monitoring Dashboard</h2>
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:20px;">
-            <div class="db-card"><h3>Distance</h3><div id="dist-val" class="val">--</div><p>KILOMETERS (KM)</p></div>
-            <div class="db-card"><h3>Status</h3><div id="status-val" class="val">SCANNING</div><p id="status-badge">SYSTEM ACTIVE</p></div>
-            <div class="db-card"><h3>Developer</h3><div class="val" style="font-size:1.5rem;">CN230083</div><p>Ameer Hakim</p></div>
+    <section id="monitoring">
+        <h2 style="margin-bottom:30px">Real-Time Feed</h2>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:20px">
+            <div class="stat-card"><h3>Distance</h3><div id="d-val" class="big-val">--</div><p>KM</p></div>
+            <div class="stat-card"><h3>Status</h3><div id="s-val" class="big-val">WAIT</div></div>
+            <div class="stat-card"><h3>ID</h3><div class="big-val" style="font-size:1.5rem">CN230083</div></div>
         </div>
-        <div style="margin-top:50px; background:#151921; padding:30px; border-radius:30px;">
-            <canvas id="liveChart" height="100"></canvas>
+        <div style="margin-top:30px; background:#111; padding:20px; border-radius:20px">
+            <canvas id="stormChart" height="100"></canvas>
         </div>
     </section>
 
     <script>
-        const BLYNK_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd"; 
-        const ctx = document.getElementById('liveChart').getContext('2d');
-        const liveChart = new Chart(ctx, {
+        const TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd"; 
+        const ctx = document.getElementById('stormChart').getContext('2d');
+        const chart = new Chart(ctx, {
             type: 'line',
-            data: { labels: [], datasets: [{ label: 'Distance (KM)', data: [], borderColor: '#00d2ff', borderWidth: 3, fill: true, tension: 0.4 }] },
+            data: { labels: [], datasets: [{ label: 'Distance (KM)', data: [], borderColor: '#00d2ff', fill: true }] },
             options: { scales: { y: { beginAtZero: true, max: 40 } } }
         });
 
-        async function updateData() {
+        async function update() {
             try {
-                const rDist = await fetch(`https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&V1`);
-                const rStat = await fetch(`https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&V2`);
-                const dist = await rDist.text();
-                const stat = await rStat.text();
-                document.getElementById('dist-val').innerText = dist;
-                document.getElementById('status-val').innerText = stat;
-                const now = new Date().toLocaleTimeString();
-                if (liveChart.data.labels.length > 10) { liveChart.data.labels.shift(); liveChart.data.datasets[0].data.shift(); }
-                liveChart.data.labels.push(now);
-                liveChart.data.datasets[0].data.push(dist);
-                liveChart.update();
-            } catch (e) { console.log("Offline"); }
+                const res1 = await fetch(`https://blynk.cloud/external/api/get?token=${TOKEN}&V1`);
+                const res2 = await fetch(`https://blynk.cloud/external/api/get?token=${TOKEN}&V2`);
+                const d = await res1.text();
+                const s = await res2.text();
+                document.getElementById('d-val').innerText = d;
+                document.getElementById('s-val').innerText = s;
+                if (chart.data.labels.length > 10) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
+                chart.data.labels.push(new Date().toLocaleTimeString());
+                chart.data.datasets[0].data.push(d);
+                chart.update();
+            } catch(e) {}
         }
-        setInterval(updateData, 3000);
+        setInterval(update, 3000);
     </script>
 </body>
 </html>
