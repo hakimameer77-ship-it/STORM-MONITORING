@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StormWatch | Monitoring System</title>
+    <title>StormWatch | Lightning Monitoring System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,98 +11,120 @@
 </head>
 <body>
 
-    <div class="lightning-container"></div>
+    <div class="lightning-bg"></div>
     <div class="flash-overlay" id="flash-effect"></div>
 
-    <div class="mobile-toggle" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-    </div>
-
-    <div class="sidebar" id="sidebar">
-        <div class="logo">
-            <i class="fas fa-bolt-lightning"></i>
-            <span>STORM-WATCH</span>
-        </div>
-        <nav>
-            <ul>
-                <li class="nav-item active" data-target="front-page"><a><i class="fas fa-home"></i> Front Page</a></li>
-                <li class="nav-item" data-target="flow-project"><a><i class="fas fa-project-diagram"></i> Project Flow</a></li>
-                <li class="nav-item" data-target="how-it-works"><a><i class="fas fa-gears"></i> How It Works</a></li>
-                <li class="nav-item" data-target="try-it-out"><a><i class="fas fa-desktop"></i> Interactive Demo</a></li>
-                <li class="nav-item" data-target="mission"><a><i class="fas fa-bullseye"></i> Our Mission</a></li>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-bolt-lightning"></i> <span>STORM-WATCH</span>
+            </div>
+            <ul class="nav-links" id="nav-links">
+                <li class="nav-item active" data-target="front-page">Home</li>
+                <li class="nav-item" data-target="flow-project">Project Flow</li>
+                <li class="nav-item" data-target="how-it-works">How It Works</li>
+                <li class="nav-item" data-target="try-it-out">Interactive Demo</li>
+                <li class="nav-item" data-target="mission">Our Mission</li>
             </ul>
-        </nav>
-        <div class="sidebar-footer">
-            <p>MALAYSIA TIME (MYT)</p>
-            <span id="malaysia-time">00:00:00 AM</span>
+            <div class="mobile-menu" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </div>
         </div>
-    </div>
+    </nav>
 
-    <main class="content">
+    <main class="content-wrapper">
         <section id="front-page" class="main-section active">
-            <header>
-                <div class="header-info">
-                    <h1>StormWatch Monitoring</h1>
-                    <p>Real-Time Lightning Detection</p>
-                </div>
-            </header>
-            <div class="hero-card">
-                <div class="hero-content">
-                    <h2>Master Watcher 24/7</h2>
-                    <p>Sistem pemantauan cuaca ekstrem berasaskan IoT untuk keselamatan komuniti kampus UTHM.</p>
+            <div class="hero-box">
+                <h1>StormWatch Dashboard</h1>
+                <p>Real-Time Lightning Detection for UTHM Community Safety</p>
+                <div class="connection-status">
+                    <span id="status-dot" class="dot pulse"></span> ESP32: <span id="esp-status">CONNECTING...</span>
                 </div>
             </div>
         </section>
 
         <section id="flow-project" class="main-section">
-            <header><h1>Project Flow</h1></header>
-            <div class="card-large">
-                <div class="flow-grid">
-                    <div class="flow-item"><span>1</span><p>Sensor AS3935 mengesan kilat.</p></div>
-                    <div class="flow-item"><span>2</span><p>ESP32 memproses data.</p></div>
-                    <div class="flow-item"><span>3</span><p>Hantar ke Blynk Cloud.</p></div>
-                    <div class="flow-item"><span>4</span><p>Visualisasi di Dashboard.</p></div>
+            <h2 class="section-title">Project Flow</h2>
+            
+            <div class="glass-card">
+                <div class="flow-container">
+                    <div class="flow-node">
+                        <div class="node-num">1</div>
+                        <p><strong>Detection:</strong> AS3935 sensor detects electromagnetic pulses from lightning strikes up to 40km away.</p>
+                    </div>
+                    <div class="flow-node">
+                        <div class="node-num">2</div>
+                        <p><strong>Processing:</strong> ESP32 microcontroller calculates storm distance and energy levels.</p>
+                    </div>
+                    <div class="flow-node">
+                        <div class="node-num">3</div>
+                        <p><strong>Cloud Sync:</strong> Data is transmitted via WiFi to the Blynk IoT Cloud platform.</p>
+                    </div>
+                    <div class="flow-node">
+                        <div class="node-num">4</div>
+                        <p><strong>Visualization:</strong> This dashboard displays live updates and alerts to the end-users.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
         <section id="how-it-works" class="main-section">
-            <header><h1>How It Works</h1></header>
-            <div class="responsive-grid">
-                <div class="card"><i class="fas fa-microchip card-icon"></i><h3>Connect</h3><p>Sambungkan sensor ke nod WiFi.</p></div>
-                <div class="card"><i class="fas fa-magnifying-glass-chart card-icon"></i><h3>Analyze</h3><p>Data diproses secara automatik.</p></div>
-                <div class="card"><i class="fas fa-bell card-icon"></i><h3>Alert</h3><p>Amaran dihantar terus ke peranti.</p></div>
+            <h2 class="section-title">How It Works</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <i class="fas fa-microchip"></i>
+                    <h3>Smart Sensors</h3>
+                    <p>Uses Franklin Lightning Sensor technology to filter out man-made disturbers.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-wifi"></i>
+                    <h3>IoT Integration</h3>
+                    <p>Seamless wireless connection ensures data is available 24/7 on any device.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-shield-halved"></i>
+                    <h3>Safety First</h3>
+                    <p>Automated alerts help students and staff seek shelter before the storm arrives.</p>
+                </div>
             </div>
         </section>
 
         <section id="try-it-out" class="main-section">
-            <header>
-                <h1>Interactive Demo</h1>
-                <div class="status-badge"><span id="status-dot" class="dot pulse"></span> ESP32: <span id="esp-status">...</span></div>
-            </header>
-            <div class="responsive-grid">
-                <div class="card-mini">
+            <h2 class="section-title">Interactive Demo</h2>
+            <div class="demo-grid">
+                <div class="stat-card">
                     <p>Current Distance</p>
                     <h2 id="storm-distance">-- KM</h2>
                 </div>
-                <div class="card-mini">
+                <div class="stat-card">
                     <p>Developer ID</p>
                     <h2>CN230083</h2>
                 </div>
             </div>
-            <div class="main-chart">
-                <div class="canvas-container"><canvas id="lightningChart"></canvas></div>
+            <div class="chart-box">
+                <div class="chart-header">
+                    <h3>Live Distance Tracking</h3>
+                    <button class="refresh-btn" onclick="fetchBlynkData()"><i class="fas fa-sync"></i> Refresh</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="lightningChart"></canvas>
+                </div>
             </div>
         </section>
 
         <section id="mission" class="main-section">
-            <header><h1>Our Mission</h1></header>
-            <div class="card-large mission-content">
+            <h2 class="section-title">Our Mission</h2>
+            <div class="glass-card mission-content">
                 <i class="fas fa-quote-left"></i>
-                <p>Meningkatkan tahap keselamatan warga UTHM dengan menyediakan sistem pengesanan kilat jarak jauh yang efisien, telus, dan mudah diakses melalui teknologi Internet of Things (IoT).</p>
+                <p>To empower the UTHM community with innovative IoT solutions that enhance disaster preparedness and ensure the physical safety of every student and faculty member through accurate, real-time atmospheric data.</p>
             </div>
         </section>
     </main>
+
+    <footer class="main-footer">
+        <div id="myt-clock">00:00:00 AM</div>
+        <p>&copy; 2024 StormWatch Project | UTHM</p>
+    </footer>
 
     <script src="script.js"></script>
 </body>
