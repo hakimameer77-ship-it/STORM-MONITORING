@@ -9,83 +9,76 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
     
     <style>
-        :root { --primary: #ffae00; --accent: #00d2ff; --dark: #0b0e11; }
+        :root { --primary: #ffae00; --accent: #00d2ff; --dark: #050505; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
             font-family: 'Inter', sans-serif; 
-            background: #050505; /* Gelap supaya kilat nampak jelas */
+            background: var(--dark); 
             color: #fff; 
             line-height: 1.6; 
             overflow-x: hidden; 
         }
 
-        /* --- KESAN KILAT LATAR BELAKANG --- */
+        /* --- KESAN KILAT ANIMASI (BACKGROUND) --- */
         #lightning-canvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1; /* Di belakang semua elemen */
+            z-index: -1;
             pointer-events: none;
+            background: linear-gradient(to bottom, #050505, #111);
         }
 
-        /* --- HEADER --- */
-        header { display: flex; justify-content: center; align-items: center; padding: 30px 5%; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
+        /* --- HEADER & LOGO --- */
+        header { display: flex; justify-content: center; align-items: center; padding: 30px 5%; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .logo { display: flex; align-items: center; gap: 10px; }
-        .logo-box { background: var(--primary); width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
-        .logo h1 { font-weight: 800; font-size: 28px; letter-spacing: -1px; }
+        .logo-box { background: var(--primary); width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); box-shadow: 0 0 15px var(--primary); }
+        .logo h1 { font-weight: 800; font-size: 28px; color: white; }
 
         /* --- HERO SECTION --- */
-        .hero { padding: 20px 5% 50px; }
-        .hero-img { width: 100%; height: 500px; border-radius: 40px; object-fit: cover; box-shadow: 0 0 50px rgba(255,174,0,0.2); filter: brightness(0.8); }
-        .hero-content { position: relative; margin-top: -150px; padding-left: 50px; color: white; text-shadow: 0 4px 15px rgba(0,0,0,1); }
+        .hero { padding: 40px 5% 80px; text-align: center; position: relative; }
+        .hero-img { width: 100%; max-width: 1100px; height: 500px; border-radius: 40px; object-fit: cover; box-shadow: 0 0 50px rgba(0,210,255,0.2); filter: brightness(0.8); border: 1px solid rgba(255,255,255,0.1); }
+        .hero-content { margin-top: -120px; color: white; text-shadow: 0 4px 15px rgba(0,0,0,0.8); position: relative; z-index: 2; }
 
         /* --- HOW IT WORKS (Transparent Cards) --- */
         .how-works { padding: 100px 5%; text-align: center; }
-        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-top: 50px; }
-        .step { background: rgba(255,255,255,0.05); padding: 40px; border-radius: 30px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .step img { width: 80px; margin-bottom: 20px; filter: invert(1); }
+        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-top: 50px; }
+        .step { background: rgba(255,255,255,0.05); padding: 45px; border-radius: 35px; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+        .step:hover { background: rgba(255,255,255,0.08); border-color: var(--primary); transform: translateY(-5px); }
+        .step img { width: 90px; margin-bottom: 25px; filter: brightness(0) invert(1); }
 
-        /* --- MASTER WATCHER --- */
+        /* --- MASTER WATCHER 24/7 --- */
         .video-sec { padding: 100px 5%; text-align: center; }
-        .glass-box { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 25px; padding: 30px; transition: 0.3s; }
-        .glass-box:hover { background: rgba(255,255,255,0.1); transform: scale(1.05); }
+        .watcher-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-top: 50px; }
+        .glass-box { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; padding: 40px; transition: 0.3s; }
+        .glass-box i { color: var(--primary); margin-bottom: 15px; font-size: 2rem; }
 
-        /* --- TRY IT OUT (Centered Interactive Demo) --- */
+        /* --- INTERACTIVE DEMO (FOKUS UTAMA) --- */
         .try-it { padding: 100px 5%; text-align: center; }
-        .demo-container { max-width: 800px; margin: 40px auto 0; }
         .demo-card { 
-            background: rgba(255,255,255,0.05); 
-            border-radius: 40px; 
-            padding: 50px; 
-            cursor: pointer; 
-            transition: 0.4s; 
-            border: 2px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(15px);
+            max-width: 750px; margin: 50px auto; 
+            background: rgba(255,255,255,0.03); 
+            border-radius: 45px; padding: 60px 40px; 
+            cursor: pointer; transition: 0.4s; 
+            border: 2px solid rgba(255,255,255,0.1); 
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
         }
-        .demo-card:hover { 
-            border-color: var(--primary); 
-            transform: translateY(-15px);
-            box-shadow: 0 0 40px rgba(255,174,0,0.3);
-        }
-        .demo-preview-img {
-            width: 100%;
-            border-radius: 20px;
-            margin: 30px 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+        .demo-card:hover { border-color: var(--primary); transform: translateY(-15px); box-shadow: 0 0 40px rgba(255,174,0,0.3); }
+        .demo-preview { width: 100%; border-radius: 25px; margin: 30px 0; border: 1px solid rgba(255,255,255,0.2); }
 
-        /* --- MISSION --- */
+        /* --- OUR MISSION --- */
         .mission { padding: 100px 5%; text-align: center; }
-        .line-box { height: 6px; background: rgba(255,255,255,0.1); margin: 50px auto; max-width: 800px; display: flex; justify-content: space-between; align-items: center; border-radius: 10px; }
-        .dot { width: 24px; height: 24px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 20px var(--primary); }
+        .line-box { height: 6px; background: rgba(255,255,255,0.1); margin: 60px auto; max-width: 800px; display: flex; justify-content: space-between; align-items: center; border-radius: 10px; position: relative; }
+        .dot { width: 24px; height: 24px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 20px var(--primary); border: 4px solid #000; }
 
         /* --- MONITORING DASHBOARD --- */
-        #monitoring { background: rgba(0,0,0,0.8); padding: 100px 5%; border-radius: 60px 60px 0 0; border-top: 1px solid var(--primary); }
-        .stat-card { background: rgba(255,255,255,0.03); padding: 40px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); }
-        .big-val { font-size: 3.5rem; font-weight: 800; color: var(--accent); text-shadow: 0 0 20px rgba(0,210,255,0.5); }
+        #monitoring { background: rgba(0,0,0,0.85); padding: 100px 5%; border-radius: 70px 70px 0 0; border-top: 2px solid var(--primary); box-shadow: 0 -20px 50px rgba(255,174,0,0.1); }
+        .stat-card { background: rgba(255,255,255,0.03); padding: 40px; border-radius: 35px; border: 1px solid rgba(255,255,255,0.05); text-align: center; }
+        .big-val { font-size: 3.8rem; font-weight: 800; color: var(--accent); text-shadow: 0 0 25px rgba(0,210,255,0.4); }
     </style>
 </head>
 <body>
@@ -102,90 +95,115 @@
     <section class="hero">
         <img src="https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?auto=format&fit=crop&w=1200" class="hero-img">
         <div class="hero-content">
-            <h2 style="font-size: 4rem; font-weight:800">Storm Tracker</h2>
-            <p style="font-size: 1.2rem; opacity: 0.8;">Live IoT Monitoring for UTHM Community</p>
+            <h2 style="font-size: 4.5rem; font-weight:800; letter-spacing: -2px;">Storm Tracker</h2>
+            <p style="font-size: 1.4rem; opacity: 0.9; font-weight: 300;">Real-time AI Monitoring</p>
         </div>
     </section>
 
     <section class="how-works">
-        <h2 style="font-size: 2.5rem;">How It Works</h2>
+        <h2 style="font-size: 2.8rem;">How It Works</h2>
         <div class="steps">
-            <div class="step"><img src="https://cdn-icons-png.flaticon.com/512/2540/2540201.png"><h3>Connect Sensors</h3></div>
-            <div class="step"><img src="https://cdn-icons-png.flaticon.com/512/2103/2103633.png"><h3>Cloud Analysis</h3></div>
-            <div class="step"><img src="https://cdn-icons-png.flaticon.com/512/4230/4230756.png"><h3>Instant Alert</h3></div>
+            <div class="step"><img src="https://cdn-icons-png.flaticon.com/512/2540/2540201.png"><h3>Install & Connect</h3><p style="opacity:0.6; font-size:0.9rem; margin-top:10px;">Place sensors at your location.</p></div>
+            <div class="step"><img src="https://cdn-icons-png.flaticon.com/512/2103/2103633.png"><h3>AI Analysis</h3><p style="opacity:0.6; font-size:0.9rem; margin-top:10px;">Continuous atmospheric scanning.</p></div>
+            <div class="step"><img src="https://cdn-icons-png.flaticon.com/512/4230/4230756.png"><h3>Instant Alerts</h3><p style="opacity:0.6; font-size:0.9rem; margin-top:10px;">Get notifications immediately.</p></div>
         </div>
     </section>
 
     <section class="video-sec">
-        <h2 style="font-size:3rem; font-weight:800; margin-bottom:50px">A master watcher 24/7</h2>
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:30px">
-            <div class="glass-box"><h3>Real-time Tracking</h3></div>
-            <div class="glass-box"><h3>Early Warning</h3></div>
-            <div class="glass-box"><h3>Data Analytics</h3></div>
+        <h2 style="font-size:3.2rem; font-weight:800; margin-bottom:50px">A master watcher watching over you 24/7</h2>
+        <div class="watcher-grid">
+            <div class="glass-box"><i class="fas fa-shield-alt"></i><h3>Prevent Hazards</h3><p style="opacity:0.6; font-size:0.85rem; margin-top:10px;">Minimize risk to infrastructure.</p></div>
+            <div class="glass-box"><i class="fas fa-satellite-dish"></i><h3>Real-time Tracking</h3><p style="opacity:0.6; font-size:0.85rem; margin-top:10px;">Accurate strike distance measurement.</p></div>
+            <div class="glass-box"><i class="fas fa-bell"></i><h3>Early Warning</h3><p style="opacity:0.6; font-size:0.85rem; margin-top:10px;">Peace of mind for your community.</p></div>
         </div>
     </section>
 
     <section class="try-it">
-        <h2 style="font-size: 2.5rem;">Try It Out</h2>
-        <div class="demo-container">
-            <div class="demo-card" onclick="document.getElementById('monitoring').scrollIntoView({behavior: 'smooth'})">
-                <p style="color:var(--primary); font-weight:800; letter-spacing:2px;">• INTERACTIVE DEMO •</p>
-                <img src="https://i.postimg.cc/44Yfyk6j/dashboard-preview.png" class="demo-preview-img" alt="Dashboard">
-                <h3 style="font-size:1.8rem;">Access Live Dashboard</h3>
-                <p style="opacity:0.6; margin-top:15px;">Click to view live strike distance and status feed.</p>
-            </div>
+        <h2 style="font-size: 2.8rem;">Try It Out</h2>
+        <div class="demo-card" onclick="document.getElementById('monitoring').scrollIntoView({behavior: 'smooth'})">
+            <p style="color:var(--primary); font-weight:800; letter-spacing:3px;">• INTERACTIVE DEMO •</p>
+            <img src="https://i.postimg.cc/44Yfyk6j/dashboard-preview.png" class="demo-preview">
+            <h3 style="font-size:2rem;">Access Live Monitoring</h3>
+            <p style="opacity:0.6; margin-top:15px; font-size: 1.1rem;">Click to explore the real-time lightning dashboard.</p>
         </div>
     </section>
 
     <section class="mission">
-        <h2 style="opacity:0.5; margin-bottom:20px;">Our Mission</h2>
+        <h2 style="opacity:0.4; margin-bottom:10px;">Our Mission</h2>
+        <h3 style="font-size: 1.8rem; font-weight: 400;">Protecting the communities that sustain our world</h3>
         <div class="line-box">
             <div class="dot"></div><div class="dot"></div><div class="dot"></div>
         </div>
-        <p style="font-size:1.5rem;">Protecting the communities that sustain our world</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px; max-width:900px; margin:0 auto;">
+            <div><h4>The Challenge</h4><p style="font-size:0.85rem; opacity:0.6;">High strike frequency.</p></div>
+            <div><h4>Our Solution</h4><p style="font-size:0.85rem; opacity:0.6;">AI monitoring.</p></div>
+            <div><h4>Global Impact</h4><p style="font-size:0.85rem; opacity:0.6;">Safety for all.</p></div>
+        </div>
     </section>
 
     <section id="monitoring">
-        <h2 style="margin-bottom:50px; text-align:center;">Real-Time System Feed</h2>
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:30px">
-            <div class="stat-card"><h3>Distance</h3><div id="d-val" class="big-val">--</div><p>KM</p></div>
-            <div class="stat-card"><h3>Status</h3><div id="s-val" class="big-val">WAIT</div></div>
-            <div class="stat-card"><h3>Node ID</h3><div class="big-val" style="font-size:1.5rem">AMEER-083</div></div>
+        <h2 style="margin-bottom:60px; text-align:center; font-size: 2.5rem;">Real-Time System Feed</h2>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:30px">
+            <div class="stat-card"><h3>Strike Distance</h3><div id="d-val" class="big-val">--</div><p style="color:var(--accent);">KILOMETERS (KM)</p></div>
+            <div class="stat-card"><h3>System Status</h3><div id="s-val" class="big-val" style="font-size: 2.5rem; color: #00ff88;">SCANNING</div><p>ACTIVE</p></div>
+            <div class="stat-card"><h3>Device ID</h3><div class="big-val" style="font-size:1.8rem; color: #fff;">AMEER-083</div><p>STORM-NODE v1.0</p></div>
         </div>
-        <div style="margin-top:50px; background:rgba(255,255,255,0.02); padding:40px; border-radius:40px; border: 1px solid rgba(255,255,255,0.05);">
-            <canvas id="stormChart" height="120"></canvas>
+        <div style="margin-top:60px; background:rgba(255,255,255,0.02); padding:50px; border-radius:45px; border: 1px solid rgba(255,255,255,0.1);">
+            <canvas id="stormChart" height="130"></canvas>
         </div>
     </section>
 
     <script>
-        // --- ANIMASI KILAT (LATAR BELAKANG) ---
+        // --- LOGIK ANIMASI KILAT BACKGROUND ---
         const canvas = document.getElementById('lightning-canvas');
         const ctxL = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        let bolts = [];
 
-        function drawLightning() {
-            ctxL.clearRect(0, 0, canvas.width, canvas.height);
-            if (Math.random() > 0.96) { // Kekerapan kilat muncul
-                ctxL.strokeStyle = 'rgba(255, 255, 255, ' + Math.random() + ')';
-                ctxL.lineWidth = 2;
-                ctxL.beginPath();
-                let x = Math.random() * canvas.width;
-                ctxL.moveTo(x, 0);
-                for (let i = 0; i < 20; i++) {
-                    x += (Math.random() - 0.5) * 50;
-                    ctxL.lineTo(x, (canvas.height / 20) * i);
-                }
-                ctxL.stroke();
-                // Kesan Flash
-                ctxL.fillStyle = 'rgba(255, 255, 255, 0.03)';
-                ctxL.fillRect(0, 0, canvas.width, canvas.height);
-            }
-            requestAnimationFrame(drawLightning);
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
-        drawLightning();
+        window.addEventListener('resize', resize);
+        resize();
 
-        // --- BLYNK DATA UPDATE ---
+        function createBolt() {
+            let x = Math.random() * canvas.width;
+            let y = 0;
+            let segments = [];
+            for (let i = 0; i < 25; i++) {
+                let nx = x + (Math.random() - 0.5) * 60;
+                let ny = y + (canvas.height / 25);
+                segments.push({x1: x, y1: y, x2: nx, y2: ny});
+                x = nx; y = ny;
+            }
+            bolts.push({segments, alpha: 1.0});
+        }
+
+        function animate() {
+            ctxL.fillStyle = 'rgba(5, 5, 5, 0.15)';
+            ctxL.fillRect(0, 0, canvas.width, canvas.height);
+            
+            if (Math.random() > 0.97) createBolt();
+
+            bolts.forEach((bolt, index) => {
+                ctxL.strokeStyle = `rgba(255, 255, 255, ${bolt.alpha})`;
+                ctxL.lineWidth = 2;
+                ctxL.shadowBlur = 15;
+                ctxL.shadowColor = "#fff";
+                ctxL.beginPath();
+                bolt.segments.forEach(s => {
+                    ctxL.moveTo(s.x1, s.y1);
+                    ctxL.lineTo(s.x2, s.y2);
+                });
+                ctxL.stroke();
+                bolt.alpha -= 0.05;
+                if (bolt.alpha <= 0) bolts.splice(index, 1);
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- BLYNK DATA UPDATER ---
         const TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd"; 
         const ctx = document.getElementById('stormChart').getContext('2d');
         const chart = new Chart(ctx, {
@@ -198,10 +216,18 @@
                     borderColor: '#00d2ff', 
                     backgroundColor: 'rgba(0,210,255,0.1)',
                     fill: true, 
-                    tension: 0.4 
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#fff'
                 }] 
             },
-            options: { scales: { y: { beginAtZero: true, max: 40, grid: {color: '#222'} }, x: { grid: {color: '#222'} } } }
+            options: { 
+                plugins: { legend: { labels: { color: '#fff' } } },
+                scales: { 
+                    y: { beginAtZero: true, max: 40, grid: {color: '#333'}, ticks: {color: '#fff'} }, 
+                    x: { grid: {color: '#333'}, ticks: {color: '#fff'} } 
+                } 
+            }
         });
 
         async function update() {
@@ -212,11 +238,11 @@
                 const s = await res2.text();
                 document.getElementById('d-val').innerText = d;
                 document.getElementById('s-val').innerText = s;
-                if (chart.data.labels.length > 10) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
-                chart.data.labels.push(new Date().toLocaleTimeString());
+                if (chart.data.labels.length > 12) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
+                chart.data.labels.push(new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}));
                 chart.data.datasets[0].data.push(d);
                 chart.update();
-            } catch(e) {}
+            } catch(e) { console.log("Blynk error"); }
         }
         setInterval(update, 3000);
     </script>
