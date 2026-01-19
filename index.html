@@ -3,83 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StormWatch - UTHM Monitoring System</title>
+    <title>StormWatch | Dashboard Ameer Hakim</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="lightning-bg">
-        <div class="lightning-flash" id="flash-overlay"></div>
+    <div class="lightning-container"></div>
+    <div class="flash-overlay" id="flash-effect"></div>
+
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-bolt"></i>
+            <span>STORM-WATCH</span>
+        </div>
+        <nav>
+            <ul>
+                <li class="nav-item active" data-target="dashboard"><a><i class="fas fa-desktop"></i> Dashboard</a></li>
+                <li class="nav-item" data-target="alert-history"><a><i class="fas fa-bell"></i> Alert History</a></li>
+                <li class="nav-item" data-target="analytics"><a><i class="fas fa-chart-pie"></i> Analytics</a></li>
+                <li class="nav-item" data-target="system"><a><i class="fas fa-server"></i> System</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <p>MALAYSIA TIME (MYT)</p>
+            <span id="malaysia-time">00:00:00 AM</span>
+        </div>
     </div>
 
-    <header>
-        <div class="logo">⚡ STORMWATCH</div>
-        <nav>
-            <a href="#">About</a>
-            <a href="#">Assets</a>
-            <a href="#">Facility</a>
-            <a href="#">UTHM Community</a>
-            <button class="btn-login">Logout</button>
-        </nav>
-    </header>
+    <main class="content">
+        <section id="dashboard" class="main-section active">
+            <header>
+                <div class="header-info">
+                    <h1>Real-Time Monitoring</h1>
+                    <p>Blynk Feed: <span id="esp-status">CONNECTING...</span></p>
+                </div>
+                <div class="system-tag">
+                    <span id="status-dot" class="dot pulse"></span> Node: <strong>ESP32_01</strong>
+                </div>
+            </header>
 
-    <main class="container">
-        <section class="section-row">
-            <div class="card-hero">
-                <div class="hero-img"></div>
-                <div class="hero-text">
-                    <h2>Storm-Watch</h2>
-                    <p>Real-Time for UTHM Community</p>
+            <div class="top-row">
+                <div class="card">
+                    <div class="card-icon"><i class="fas fa-user-graduate"></i></div>
+                    <div class="card-data"><p>Student ID</p><h3>CN230083</h3></div>
+                </div>
+                <div class="card">
+                    <div class="card-icon" id="activity-icon"><i class="fas fa-cloud-bolt"></i></div>
+                    <div class="card-data"><p>Status</p><h3 id="lightning-status">SCANNING...</h3></div>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i class="fas fa-ruler-combined"></i></div>
+                    <div class="card-data"><p>Distance</p><h3 id="storm-distance">-- KM</h3></div>
                 </div>
             </div>
 
-            <div class="how-it-works">
-                <h3>How It Works</h3>
-                <div class="steps-container">
-                    <div class="step-box">
-                        <div class="icon">🏠</div>
-                        <strong>Step 1</strong>
-                        <p>Connect System</p>
-                    </div>
-                    <div class="step-box">
-                        <div class="icon">🔍</div>
-                        <strong>Step 2</strong>
-                        <p>AI Analysis</p>
-                    </div>
-                    <div class="step-box">
-                        <div class="icon">📱</div>
-                        <strong>Step 3</strong>
-                        <p>Live Alerts</p>
-                    </div>
+            <div class="main-chart">
+                <div class="chart-header">
+                    <h2>Live Proximity Tracker</h2>
                 </div>
+                <div class="canvas-container"><canvas id="lightningChart"></canvas></div>
             </div>
         </section>
 
-        <div class="divider"></div>
-
-        <section class="section-row">
-            <div class="text-block">
-                <h3>Try It Out</h3>
-                <h1>A master watcher 24/7 Detection</h1>
-                <p>Spend less time worrying about lightning strikes and focus more on your safety with our real-time detection.</p>
-                <button class="btn-orange">Learn More</button>
-            </div>
-            <div class="card-preview">
-                <img src="https://via.placeholder.com/400x250/ffffff/333333?text=StormWatch+UI+Preview" alt="UI Preview" class="img-fluid">
+        <section id="alert-history" class="main-section">
+            <header>
+                <h1>Alert History Logs</h1>
+                <button onclick="downloadCSV()" class="download-btn"><i class="fas fa-file-csv"></i> Export CSV</button>
+            </header>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Time</th><th>Distance</th><th>Status</th><th>Location</th></tr>
+                    </thead>
+                    <tbody id="alertBody"></tbody>
+                </table>
             </div>
         </section>
 
-        <div class="divider"></div>
+        <section id="analytics" class="main-section">
+            <header><h1>Weekly Analytics</h1></header>
+            <div class="main-chart"><div class="canvas-container"><canvas id="weeklyChart"></canvas></div></div>
+        </section>
 
-        <section class="section-row reverse">
-            <div class="mission-card">
-                 <img src="https://via.placeholder.com/400x250/1a1a1a/ffffff?text=Mission+Dashboard" alt="Mission UI" class="img-fluid">
-            </div>
-            <div class="text-block">
-                <h3>Mission</h3>
-                <h1>Our Mission</h1>
-                <p>Ensuring the safety of the UTHM community by providing early warning systems and high-accuracy lightning data.</p>
-                <button class="btn-orange">Read More</button>
+        <section id="system" class="main-section">
+            <header><h1>System Information</h1></header>
+            <div class="card" style="width: 100%;">
+                <div class="card-data">
+                    <p><strong>Hardware:</strong> ESP32 + AS3935 Lightning Sensor</p>
+                    <p><strong>Platform:</strong> Blynk IoT Cloud</p>
+                    <p><strong>Developer:</strong> Ameer Hakim</p>
+                </div>
             </div>
         </section>
     </main>
