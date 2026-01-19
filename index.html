@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storm Watch | Ameer Hakim</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-bolt-lightning"></i>
+            <span>STORM-WATCH</span>
+        </div>
+        <nav>
+            <ul>
+                <li class="nav-item active" data-target="dashboard"><a><i class="fas fa-desktop"></i> Dashboard</a></li>
+                <li class="nav-item" data-target="alert-history"><a><i class="fas fa-bell"></i> Alert History</a></li>
+                <li class="nav-item" data-target="analytics"><a><i class="fas fa-chart-pie"></i> Analytics</a></li>
+                <li class="nav-item" data-target="system"><a><i class="fas fa-server"></i> System</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <p>MALAYSIA TIME (MYT)</p>
+            <span id="malaysia-time">00:00:00 AM</span>
+        </div>
+    </div>
+
+    <main class="content">
+        <section id="dashboard" class="main-section active">
+            <header>
+                <div class="header-info">
+                    <h1>Real-Time Monitoring</h1>
+                    <p>Blynk Template: LIGHTNING DETECTION</p>
+                </div>
+                <div class="system-tag">
+                    <span id="status-dot" class="dot pulse"></span> ESP32: <strong id="esp-status">CONNECTING...</strong>
+                </div>
+            </header>
+
+            <div class="top-row">
+                <div class="card">
+                    <div class="card-icon blue"><i class="fas fa-user-graduate"></i></div>
+                    <div class="card-data"><p>Student ID</p><h3>CN230083</h3></div>
+                </div>
+                <div class="card">
+                    <div class="card-icon" id="activity-icon"><i class="fas fa-cloud-bolt"></i></div>
+                    <div class="card-data"><p>Status</p><h3 id="lightning-status">SCANNING...</h3></div>
+                </div>
+                <div class="card">
+                    <div class="card-icon red"><i class="fas fa-ruler-combined"></i></div>
+                    <div class="card-data"><p>Distance</p><h3 id="storm-distance">-- KM</h3></div>
+                </div>
+            </div>
+
+            <div class="main-chart">
+                <div class="chart-header">
+                    <h2>Live Proximity Tracker (0-40 KM)</h2>
+                    <span class="live-tag">LIVE BLYNK FEED</span>
+                </div>
+                <div class="canvas-container"><canvas id="lightningChart"></canvas></div>
+            </div>
+        </section>
+
+        <section id="alert-history" class="main-section">
+            <header>
+                <div class="header-info">
+                    <h1>Alert History Logs</h1>
+                    <p>Data stored locally for current session.</p>
+                </div>
+                <button onclick="downloadCSV()" class="download-btn">
+                    <i class="fas fa-file-excel"></i> Download Excel (CSV)
+                </button>
+            </header>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Time</th><th>Distance</th><th>Status</th><th>Location</th></tr>
+                    </thead>
+                    <tbody id="alertBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="analytics" class="main-section">
+            <header><h1>Weekly Analytics</h1><p>Strike frequency count by day.</p></header>
+            <div class="main-chart"><div class="canvas-container"><canvas id="weeklyChart"></canvas></div></div>
+        </section>
+
+        <section id="system" class="main-section">
+            <header><h1>System Information</h1></header>
+            <div class="card" style="width: 100%;">
+                <div class="card-data">
+                    <p><strong>Project Name:</strong> Lightning Detection System</p>
+                    <p><strong>Hardware:</strong> ESP32, AS3935 Sensor, ILI9341 TFT</p>
+                    <p><strong>Cloud:</strong> Blynk IoT Cloud</p>
+                    <p><strong>Developer:</strong> Ameer Hakim (CN230083)</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
