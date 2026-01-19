@@ -1,19 +1,19 @@
 # ⚡ STORM-MONITORING
 
-Sistem Pemantauan Kilat Real-Time profesional yang menggunakan IoT untuk keselamatan komuniti. Projek ini mengintegrasikan perkakasan ESP32 dengan dashboard berasaskan web yang moden.
+A professional, real-time Lightning Monitoring System designed for community safety. This project integrates ESP32 hardware with a modern, high-performance web dashboard.
 
-## 🚀 Ciri-ciri Utama
-* **Real-Time Dashboard**: Pemantauan langsung jarak kilat (V1) dan status (V2) dari Blynk IoT Cloud.
-* **Sistem Amaran**: Penunjuk visual bagi status **SAFE**, **WARNING**, dan **DANGER**.
-* **Analitik Mingguan**: Carta bar yang menunjukkan kekerapan sambaran kilat mengikut hari.
-* **Log & Eksport**: Sejarah amaran yang boleh dimuat turun sebagai fail CSV untuk analisis lanjut.
+## 🚀 Key Features
+* **Real-Time Dashboard**: Live monitoring of lightning strike distance (V1) and safety status (V2) directly from the Blynk IoT Cloud.
+* **Safety Alert System**: Visual indicators for **SAFE**, **WARNING**, and **DANGER** states based on real-time sensor data.
+* **Weekly Analytics**: An interactive bar chart displaying lightning strike frequency trends across the week.
+* **Log & Export**: Automated history logging with a feature to download strike data as a CSV file for further analysis.
 
-## 🛠️ Spesifikasi Teknikal
-* **Perkakasan**: ESP32, Sensor AS3935, Paparan ILI9341 TFT.
-* **Platform Cloud**: Blynk IoT Cloud.
-* **Teknologi Web**: HTML5, CSS3, JavaScript (Chart.js).
+## 🛠️ Technical Specifications
+* **Hardware Stack**: ESP32 Microcontroller, AS3935 Lightning Sensor, and ILI9341 TFT Display.
+* **Cloud Infrastructure**: Powered by Blynk IoT Cloud for seamless data transmission.
+* **Web Technologies**: Built using HTML5, CSS3, and JavaScript, featuring Chart.js for data visualization.
 
-## 👨‍💻 Maklumat Pembangun
-* **Nama**: Ameer Hakim
-* **ID Pelajar**: CN230083
-* **Institusi**: Universiti Tun Hussein Onn Malaysia (UTHM)
+## 👨‍💻 Developer Information
+* **Name**: Ameer Hakim
+* **Student ID**: CN230083
+* **Institution**: Universiti Tun Hussein Onn Malaysia (UTHM)
