@@ -3,165 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StormWatch - Real-Time Monitoring</title>
-    <style>
-        /* 1. CSS Reset & Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #0b132b; /* Biru gelap pekat */
-            color: white;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* 2. Lightning Background Effect */
-        .lightning-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: radial-gradient(circle at center, #1c2541 0%, #0b132b 100%);
-            overflow: hidden;
-        }
-
-        .lightning-flash {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* 3. Layout Sections */
-        header {
-            padding: 20px 10%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #ff9f1c; /* Warna oren ikon */
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 50px 20px;
-        }
-
-        .hero-section {
-            display: flex;
-            gap: 40px;
-            margin-bottom: 80px;
-            align-items: center;
-        }
-
-        .card-main {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            overflow: hidden;
-            flex: 1;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .card-image {
-            height: 200px;
-            background: url('https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?auto=format&fit=crop&w=800&q=80') center/cover;
-        }
-
-        .card-content {
-            padding: 25px;
-            background: white;
-            color: #333;
-        }
-
-        /* 4. Steps Section (Grid) */
-        .how-it-works {
-            flex: 1;
-        }
-
-        .steps-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .step-card {
-            background: white;
-            color: #333;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            font-size: 0.8rem;
-        }
-
-        /* 5. Buttons */
-        .btn-orange {
-            background: #ff9f1c;
-            color: white;
-            padding: 12px 30px;
-            border-radius: 25px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 20px;
-            transition: 0.3s;
-        }
-
-        .btn-orange:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 159, 28, 0.4);
-        }
-
-        /* 6. Animations */
-        @keyframes flashEffect {
-            0% { opacity: 0; }
-            10% { opacity: 0.4; }
-            15% { opacity: 0.1; }
-            20% { opacity: 0.6; }
-            100% { opacity: 0; }
-        }
-
-        .do-flash {
-            animation: flashEffect 0.5s ease-out;
-        }
-
-    </style>
+    <title>StormWatch - UTHM Monitoring System</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="lightning-container" id="lightning-bg">
+    <div class="lightning-bg">
         <div class="lightning-flash" id="flash-overlay"></div>
     </div>
 
     <header>
         <div class="logo">⚡ STORMWATCH</div>
-        <nav>About | Assets | Facility | UTHM Community</nav>
+        <nav>
+            <a href="#">About</a>
+            <a href="#">Assets</a>
+            <a href="#">Facility</a>
+            <a href="#">UTHM Community</a>
+            <button class="btn-login">Logout</button>
+        </nav>
     </header>
 
-    <div class="container">
-        <div class="hero-section">
-            <div class="card-main">
-                <div class="card-image"></div>
-                <div class="card-content">
+    <main class="container">
+        <section class="section-row">
+            <div class="card-hero">
+                <div class="hero-img"></div>
+                <div class="hero-text">
                     <h2>Storm-Watch</h2>
                     <p>Real-Time for UTHM Community</p>
                 </div>
@@ -169,44 +35,55 @@
 
             <div class="how-it-works">
                 <h3>How It Works</h3>
-                <div class="steps-grid">
-                    <div class="step-card"><strong>Step 1</strong><br>Connect System</div>
-                    <div class="step-card"><strong>Step 2</strong><br>AI Analysis</div>
-                    <div class="step-card"><strong>Step 3</strong><br>Live Alerts</div>
+                <div class="steps-container">
+                    <div class="step-box">
+                        <div class="icon">🏠</div>
+                        <strong>Step 1</strong>
+                        <p>Connect System</p>
+                    </div>
+                    <div class="step-box">
+                        <div class="icon">🔍</div>
+                        <strong>Step 2</strong>
+                        <p>AI Analysis</p>
+                    </div>
+                    <div class="step-box">
+                        <div class="icon">📱</div>
+                        <strong>Step 3</strong>
+                        <p>Live Alerts</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <hr style="opacity: 0.2; margin: 40px 0;">
+        <div class="divider"></div>
 
-        <div class="try-it-section">
-            <h2>Try It Out</h2>
-            <h1 style="font-size: 3rem; margin: 10px 0;">A Master Watcher 24/7 Detection</h1>
-            <p style="max-width: 500px; opacity: 0.8;">Sistem pemantauan kilat automatik yang melindungi komuniti dengan data masa nyata.</p>
-            <button class="btn-orange">Learn More</button>
-        </div>
-    </div>
+        <section class="section-row">
+            <div class="text-block">
+                <h3>Try It Out</h3>
+                <h1>A master watcher 24/7 Detection</h1>
+                <p>Spend less time worrying about lightning strikes and focus more on your safety with our real-time detection.</p>
+                <button class="btn-orange">Learn More</button>
+            </div>
+            <div class="card-preview">
+                <img src="https://via.placeholder.com/400x250/ffffff/333333?text=StormWatch+UI+Preview" alt="UI Preview" class="img-fluid">
+            </div>
+        </section>
 
-    <script>
-        const flashOverlay = document.getElementById('flash-overlay');
+        <div class="divider"></div>
 
-        function triggerLightning() {
-            // Tambah class animasi
-            flashOverlay.classList.add('do-flash');
-            
-            // Buang class lepas animasi siap supaya boleh trigger lagi
-            setTimeout(() => {
-                flashOverlay.classList.remove('do-flash');
-            }, 500);
+        <section class="section-row reverse">
+            <div class="mission-card">
+                 <img src="https://via.placeholder.com/400x250/1a1a1a/ffffff?text=Mission+Dashboard" alt="Mission UI" class="img-fluid">
+            </div>
+            <div class="text-block">
+                <h3>Mission</h3>
+                <h1>Our Mission</h1>
+                <p>Ensuring the safety of the UTHM community by providing early warning systems and high-accuracy lightning data.</p>
+                <button class="btn-orange">Read More</button>
+            </div>
+        </section>
+    </main>
 
-            // Set masa rawak untuk kilat seterusnya (antara 2 ke 7 saat)
-            const nextFlash = Math.random() * 5000 + 2000;
-            setTimeout(triggerLightning, nextFlash);
-        }
-
-        // Mulakan kitaran kilat
-        triggerLightning();
-    </script>
-
+    <script src="script.js"></script>
 </body>
 </html>
