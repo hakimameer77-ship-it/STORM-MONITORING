@@ -163,7 +163,7 @@
             <span class="section-tag">Safety Innovation</span>
             <h1>UTHM Pagoh Storm Monitoring</h1>
             <p style="color: var(--text-gray); max-width: 600px; margin: 0 auto 30px;">Real-time lightning detection system powered by IoT for campus-wide early warning.</p>
-            <a href="#architecture" style="background: var(--accent); color: #000; padding: 15px 35px; border-radius: 50px; text-decoration: none; font-weight: 700; transition: 0.3s;">See Architecture</a>
+            <a href="#architecture" style="background: var(--accent); color: #000; padding: 15px 35px; border-radius: 50px; text-decoration: none; font-weight: 700;">System Overview</a>
         </div>
     </div>
 
@@ -175,19 +175,19 @@
                 <div class="node-num">01</div>
                 <i class="fa-solid fa-bolt-lightning" style="font-size: 2rem; color: var(--accent); margin-bottom: 20px;"></i>
                 <h3>Sensing Layer</h3>
-                <p style="color: var(--text-gray); margin-top: 10px;">Menggunakan **AS3935 Franklin Sensor** untuk mengesan aktiviti elektrik di atmosfera dan **ESP32** sebagai pemproses utama.</p>
+                <p style="color: var(--text-gray); margin-top: 10px;">Utilizes AS3935 Franklin Sensor to detect electrical activity in the atmosphere and ESP32 as the primary processor.</p>
             </div>
             <div class="card">
                 <div class="node-num">02</div>
                 <i class="fa-solid fa-wifi" style="font-size: 2rem; color: var(--accent); margin-bottom: 20px;"></i>
                 <h3>Transmission</h3>
-                <p style="color: var(--text-gray); margin-top: 10px;">Data dihantar secara tanpa wayar ke **Blynk Cloud** menggunakan protokol HTTPS/API untuk akses jarak jauh.</p>
+                <p style="color: var(--text-gray); margin-top: 10px;">Data is sent wirelessly to Blynk Cloud using HTTPS/API protocols for remote access and real-time monitoring.</p>
             </div>
             <div class="card">
                 <div class="node-num">03</div>
                 <i class="fa-solid fa-display" style="font-size: 2rem; color: var(--accent); margin-bottom: 20px;"></i>
                 <h3>Application</h3>
-                <p style="color: var(--text-gray); margin-top: 10px;">Web Dashboard yang responsif memaparkan visualisasi graf dan memberikan amaran **Danger/Warning** secara automatik.</p>
+                <p style="color: var(--text-gray); margin-top: 10px;">A responsive Web Dashboard that visualizes trend graphs and provides automatic Danger/Warning alerts.</p>
             </div>
         </div>
     </section>
@@ -243,14 +243,17 @@
         const BLYNK_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd";
         const URL_V1 = `https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&V1`;
 
+        // Request Browser Notification Permission
         if (Notification.permission !== "denied") {
             Notification.requestPermission();
         }
 
+        // Live Clock
         setInterval(() => {
             document.getElementById('clock').innerText = new Date().toLocaleTimeString();
         }, 1000);
 
+        // Chart.js Configuration
         const ctx = document.getElementById('lightningChart').getContext('2d');
         const myChart = new Chart(ctx, {
             type: 'line',
@@ -276,6 +279,7 @@
             }
         });
 
+        // Proximity Logic
         function updateAlerts(dist) {
             const banner = document.getElementById('status-banner');
             
@@ -302,6 +306,7 @@
             }
         }
 
+        // Fetch Data from Blynk
         async function updateData() {
             try {
                 const response = await fetch(URL_V1);
