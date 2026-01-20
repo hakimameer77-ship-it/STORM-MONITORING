@@ -243,11 +243,6 @@
         const BLYNK_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd";
         const URL_V1 = `https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&V1`;
 
-        // Request Browser Notification Permission
-        if (Notification.permission !== "denied") {
-            Notification.requestPermission();
-        }
-
         // Live Clock
         setInterval(() => {
             document.getElementById('clock').innerText = new Date().toLocaleTimeString();
@@ -279,7 +274,7 @@
             }
         });
 
-        // Proximity Logic
+        // Proximity Logic (Banner Only)
         function updateAlerts(dist) {
             const banner = document.getElementById('status-banner');
             
@@ -288,9 +283,6 @@
                 banner.style.background = "rgba(255, 71, 87, 0.2)";
                 banner.style.borderColor = "#ff4757";
                 banner.style.color = "#ff4757";
-                if(Notification.permission === "granted") {
-                    new Notification("DANGER @ UTHM PAGOH", {body: "Lightning detected within 10km!"});
-                }
             } 
             else if (dist < 25) {
                 banner.innerText = "⚠️ WARNING: STORM APPROACHING PAGOH (< 25KM)";
