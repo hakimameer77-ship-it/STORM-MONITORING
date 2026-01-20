@@ -11,16 +11,16 @@
 
     <style>
         :root {
-            --accent: #00d2ff; /* Warna biru BuzzHive */
+            --accent: #00d2ff;
+            --warning: #ffa502;
+            --danger: #ff4757;
             --bg-dark: #05070a;
             --card-bg: rgba(255, 255, 255, 0.03);
             --border: rgba(255, 255, 255, 0.1);
             --text-gray: #a1a1a1;
         }
 
-        /* Smooth Scroll */
         html { scroll-behavior: smooth; }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         
         body { 
@@ -30,14 +30,13 @@
             overflow-x: hidden;
         }
 
-        /* --- NAVIGATION (Top Sticky) --- */
+        /* --- NAVIGATION --- */
         .navbar { 
             position: fixed;
             top: 0;
             width: 100%;
             z-index: 1000;
             padding: 20px 0;
-            transition: 0.3s;
             background: rgba(5, 7, 10, 0.8);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border);
@@ -61,21 +60,13 @@
             gap: 10px;
             text-decoration: none;
         }
-
         .logo span { color: var(--accent); }
 
         .nav-links { display: flex; list-style: none; gap: 35px; }
-        .nav-links a { 
-            text-decoration: none; 
-            color: var(--text-gray); 
-            font-weight: 600; 
-            font-size: 0.95rem; 
-            transition: 0.3s;
-        }
-
+        .nav-links a { text-decoration: none; color: var(--text-gray); font-weight: 600; transition: 0.3s; }
         .nav-links a:hover { color: var(--accent); }
 
-        /* --- HERO SECTION --- */
+        /* --- HERO --- */
         .hero {
             height: 100vh;
             display: flex;
@@ -96,47 +87,11 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .hero-content p {
-            font-size: 1.2rem;
-            color: var(--text-gray);
-            max-width: 600px;
-            margin: 0 auto 30px;
-        }
-
-        .btn-main {
-            background: var(--accent);
-            color: #000;
-            padding: 15px 35px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: 0.3s;
-            display: inline-block;
-        }
-
-        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0, 210, 255, 0.3); }
-
-        /* --- SECTION GENERIC --- */
+        /* --- SECTIONS --- */
         section { padding: 100px 30px; max-width: 1200px; margin: 0 auto; }
-        
-        .section-tag {
-            color: var(--accent);
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            font-weight: 800;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-            display: block;
-            text-align: center;
-        }
+        .section-tag { color: var(--accent); text-transform: uppercase; font-size: 0.8rem; font-weight: 800; letter-spacing: 2px; text-align: center; display: block; margin-bottom: 10px; }
+        .section-title { font-size: 2.5rem; text-align: center; margin-bottom: 50px; }
 
-        .section-title {
-            font-size: 2.5rem;
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        /* --- GRID LAYOUT --- */
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
 
         .card {
@@ -147,12 +102,17 @@
             transition: 0.4s;
         }
 
-        .card:hover { border-color: var(--accent); background: rgba(0, 210, 255, 0.02); }
-
-        .card i { font-size: 2rem; color: var(--accent); margin-bottom: 20px; }
-
-        /* --- INTERACTIVE PROJECT SECTION --- */
-        #project { background: rgba(255,255,255,0.01); border-radius: 40px; margin-top: 50px; margin-bottom: 50px; }
+        /* --- STATUS BANNER --- */
+        #status-banner {
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            transition: 0.5s;
+            border: 1px solid var(--border);
+        }
 
         .chart-box {
             background: #000;
@@ -160,26 +120,13 @@
             border-radius: 30px;
             border: 1px solid var(--border);
             margin-top: 40px;
-            height: 450px;
+            height: 400px;
         }
 
-        /* --- FOOTER --- */
-        footer {
-            border-top: 1px solid var(--border);
-            padding: 50px 30px;
-            text-align: center;
-        }
+        footer { border-top: 1px solid var(--border); padding: 50px 30px; text-align: center; }
+        #clock { color: var(--accent); font-weight: 800; font-size: 1.2rem; }
 
-        .footer-logo { font-size: 1.5rem; font-weight: 800; margin-bottom: 20px; display: block; }
-        .footer-links { display: flex; justify-content: center; gap: 30px; margin-bottom: 30px; list-style: none; }
-        .footer-links a { color: var(--text-gray); text-decoration: none; font-size: 0.9rem; }
-
-        #clock { color: var(--accent); font-weight: 800; font-size: 1.2rem; margin-bottom: 10px; }
-
-        @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .hero-content h1 { font-size: 3rem; }
-        }
+        @media (max-width: 768px) { .nav-links { display: none; } }
     </style>
 </head>
 <body>
@@ -189,12 +136,10 @@
             <a href="#" class="logo">STORM<span>WATCH</span></a>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
-                <li><a href="#flow">Process</a></li>
-                <li><a href="#features">Features</a></li>
                 <li><a href="#project">Interactive</a></li>
                 <li><a href="#mission">Mission</a></li>
             </ul>
-            <a href="#project" class="btn-main" style="padding: 10px 20px; font-size: 0.8rem;">LIVE DATA</a>
+            <a href="#project" class="btn-main" style="background: var(--accent); color: #000; padding: 10px 20px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.8rem;">LIVE DATA</a>
         </div>
     </nav>
 
@@ -202,66 +147,47 @@
         <div class="hero-content">
             <span class="section-tag">Empowering Safety with IoT</span>
             <h1>Next-Gen Lightning Monitoring</h1>
-            <p>Advanced real-time detection and analysis system built for the UTHM community. Precision, Speed, and Reliability.</p>
-            <a href="#flow" class="btn-main">Explore Project</a>
+            <p style="color: var(--text-gray); max-width: 600px; margin: 0 auto 30px;">Advanced real-time detection for the UTHM community.</p>
+            <a href="#project" style="background: var(--accent); color: #000; padding: 15px 35px; border-radius: 50px; text-decoration: none; font-weight: 700;">Check Proximity</a>
         </div>
     </div>
 
-    <section id="flow">
-        <span class="section-tag">How it's built</span>
-        <h2 class="section-title">System Architecture</h2>
-        
-        <div class="grid">
-            <div class="card">
-                <div class="node-num" style="color: var(--accent); font-weight: 800; margin-bottom: 10px;">01</div>
-                <h3>Hardware Layer</h3>
-                <p>Equipped with AS3935 Franklin Sensor and ESP32 for high-speed signal processing.</p>
-            </div>
-            <div class="card">
-                <div class="node-num" style="color: var(--accent); font-weight: 800; margin-bottom: 10px;">02</div>
-                <h3>Cloud Sync</h3>
-                <p>Seamless data transmission via Blynk IoT Cloud platform with 99.9% uptime.</p>
-            </div>
-            <div class="card">
-                <div class="node-num" style="color: var(--accent); font-weight: 800; margin-bottom: 10px;">03</div>
-                <h3>Visualization</h3>
-                <p>Interactive dashboard providing real-time proximity alerts and history logs.</p>
-            </div>
-        </div>
-    </section>
-
     <section id="project">
         <span class="section-tag">Live Feed</span>
-        <h2 class="section-title">Interactive Project</h2>
+        <h2 class="section-title">Monitoring Dashboard</h2>
+
+        <div id="status-banner" style="background: rgba(255,255,255,0.05);">
+            INITIALIZING SENSORS...
+        </div>
         
         <div class="grid">
             <div class="card" style="text-align: center;">
                 <p style="font-size: 0.8rem; letter-spacing: 2px; color: var(--text-gray);">STORM PROXIMITY</p>
                 <h2 id="dist-val" style="font-size: 4rem; color: #fff; margin: 10px 0;">-- KM</h2>
-                <span id="esp-status" style="color: #ff4757; font-weight: 800; font-size: 0.8rem;">● DISCONNECTED</span>
+                <span id="esp-status" style="color: var(--danger); font-weight: 800; font-size: 0.8rem;">● DISCONNECTED</span>
             </div>
+
             <div class="card">
-                <h3>Node Information</h3>
-                <div style="margin-top: 15px; color: var(--text-gray);">
-                    <p>Developer: <strong>Ameer Hakim</strong></p>
-                    <p>Student ID: <strong>CN230083</strong></p>
-                    <p>Device: <strong>Node-01 (ESP32)</strong></p>
+                <h3><i class="fa-solid fa-location-dot" style="color: var(--accent); margin-right: 10px;"></i> Deployment Info</h3>
+                <div style="margin-top: 15px; color: var(--text-gray); font-size: 0.9rem;">
+                    <p>Developer: <strong>Ameer Hakim (CN230083)</strong></p>
+                    <p>Location: <strong>UTHM, Parit Raja, Johor</strong></p>
+                    <p>Coordinates: <strong>1.8531° N, 103.0865° E</strong></p>
+                    <p>Sensor: <strong>AS3935 Franklin Lightning Sensor</strong></p>
                 </div>
             </div>
         </div>
 
         <div class="chart-box">
-            <div class="chart-container" style="height: 100%;">
-                <canvas id="lightningChart"></canvas>
-            </div>
+            <canvas id="lightningChart"></canvas>
         </div>
     </section>
 
     <section id="mission">
         <span class="section-tag">Our Vision</span>
-        <h2 class="section-title">Safeguarding the Future</h2>
+        <h2 class="section-title">Safety First</h2>
         <div class="card" style="text-align: center; max-width: 800px; margin: 0 auto;">
-            <p style="font-size: 1.5rem; font-style: italic; color: #fff;">
+            <p style="font-size: 1.2rem; font-style: italic; color: #fff;">
                 "To leverage Internet of Things (IoT) technology in creating a safer campus environment by providing accurate, real-time lightning alerts to everyone."
             </p>
         </div>
@@ -270,19 +196,17 @@
     <footer>
         <div id="clock">00:00:00 AM</div>
         <p style="color: var(--text-gray); font-size: 0.8rem; margin-bottom: 20px;">MALAYSIA STANDARD TIME (MYT)</p>
-        
-        <a href="#" class="logo" style="justify-content: center; margin-bottom: 10px;">STORM<span>WATCH</span></a>
-        <ul class="footer-links">
-            <li><a href="#home">Home</a></li>
-            <li><a href="#flow">Process</a></li>
-            <li><a href="#project">Interactive</a></li>
-        </ul>
         <p style="color: #444; font-size: 0.7rem;">&copy; 2026 StormWatch. Developed for UTHM Engineering Project.</p>
     </footer>
 
     <script>
         const BLYNK_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd";
         const URL_V1 = `https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&V1`;
+
+        // Notification Permission
+        if (Notification.permission !== "denied") {
+            Notification.requestPermission();
+        }
 
         // Jam MYT
         setInterval(() => {
@@ -302,7 +226,7 @@
                     backgroundColor: 'rgba(0, 210, 255, 0.1)',
                     fill: true,
                     tension: 0.4,
-                    pointRadius: 0
+                    pointRadius: 4
                 }]
             },
             options: {
@@ -316,7 +240,33 @@
             }
         });
 
-        // Ambil Data dari Blynk
+        // Function to handle alerts
+        function updateAlerts(dist) {
+            const banner = document.getElementById('status-banner');
+            
+            if (dist <= 10) {
+                banner.innerText = "🚨 DANGER: LIGHTNING WITHIN 10KM! TAKE COVER.";
+                banner.style.background = "rgba(255, 71, 87, 0.2)";
+                banner.style.borderColor = "#ff4757";
+                banner.style.color = "#ff4757";
+                if(Notification.permission === "granted") {
+                    new Notification("DANGER ALERT", {body: `Lightning strike detected at ${dist}km!`});
+                }
+            } 
+            else if (dist < 25) {
+                banner.innerText = "⚠️ WARNING: STORM APPROACHING (Distance < 25km)";
+                banner.style.background = "rgba(255, 165, 2, 0.2)";
+                banner.style.borderColor = "#ffa502";
+                banner.style.color = "#ffa502";
+            } 
+            else {
+                banner.innerText = "✅ STATUS: SAFE (No Immediate Lightning Threat)";
+                banner.style.background = "rgba(0, 210, 255, 0.1)";
+                banner.style.borderColor = "#00d2ff";
+                banner.style.color = "#00d2ff";
+            }
+        }
+
         async function updateData() {
             try {
                 const response = await fetch(URL_V1);
@@ -328,8 +278,9 @@
                     document.getElementById('esp-status').innerText = "● DEVICE ONLINE";
                     document.getElementById('esp-status').style.color = "#00ff88";
                     
-                    const now = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    updateAlerts(dist);
 
+                    const now = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     if (myChart.data.labels.length > 20) {
                         myChart.data.labels.shift();
                         myChart.data.datasets[0].data.shift();
