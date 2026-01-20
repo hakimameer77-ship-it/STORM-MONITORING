@@ -3,275 +3,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StormWatch Pro | Advanced Weather Intelligence</title>
+    <title>StormWatch | Smart IoT Solutions</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            --primary: #00d2ff;
-            --danger: #ff4757;
-            --warning: #ffa500;
+            --accent: #00d2ff; /* Warna biru BuzzHive */
             --bg-dark: #05070a;
             --card-bg: rgba(255, 255, 255, 0.03);
             --border: rgba(255, 255, 255, 0.1);
-            --glass: blur(12px);
+            --text-gray: #a1a1a1;
         }
 
+        /* Smooth Scroll */
         html { scroll-behavior: smooth; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background-color: var(--bg-dark); color: #fff; overflow-x: hidden; }
 
-        /* --- NAVIGATION --- */
-        .navbar { 
-            position: fixed; top: 0; width: 100%; z-index: 2000; 
-            background: rgba(5, 7, 10, 0.8); backdrop-filter: var(--glass);
-            border-bottom: 1px solid var(--border); padding: 15px 0;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        body { 
+            background-color: var(--bg-dark); 
+            color: #ffffff; 
+            line-height: 1.6;
+            overflow-x: hidden;
         }
-        .nav-container { max-width: 1300px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; }
-        .logo { font-size: 1.4rem; font-weight: 800; text-decoration: none; color: #fff; }
-        .logo span { color: var(--primary); }
-        .nav-links { display: flex; list-style: none; gap: 30px; }
-        .nav-links a { text-decoration: none; color: #aaa; font-weight: 600; font-size: 0.9rem; transition: 0.3s; }
-        .nav-links a:hover { color: var(--primary); }
+
+        /* --- NAVIGATION (Top Sticky) --- */
+        .navbar { 
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 20px 0;
+            transition: 0.3s;
+            background: rgba(5, 7, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+        }
+
+        .logo { 
+            font-size: 1.5rem; 
+            font-weight: 800; 
+            color: #fff; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo span { color: var(--accent); }
+
+        .nav-links { display: flex; list-style: none; gap: 35px; }
+        .nav-links a { 
+            text-decoration: none; 
+            color: var(--text-gray); 
+            font-weight: 600; 
+            font-size: 0.95rem; 
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--accent); }
 
         /* --- HERO SECTION --- */
-        .hero { 
-            height: 80vh; display: flex; align-items: center; justify-content: center; text-align: center;
-            background: radial-gradient(circle at center, #0f172a 0%, #05070a 100%);
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: radial-gradient(circle at 50% 50%, #102a43 0%, #05070a 100%);
+            padding: 0 20px;
         }
-        .hero-content h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 800; margin-bottom: 20px; line-height: 1.1; }
-        .hero-content p { color: #888; font-size: 1.1rem; max-width: 600px; margin: 0 auto 30px; }
-        .btn { background: var(--primary); color: #000; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 700; transition: 0.3s; }
 
-        /* --- DASHBOARD GRID --- */
-        section { padding: 80px 30px; max-width: 1300px; margin: 0 auto; }
-        .section-header { margin-bottom: 40px; }
-        .section-header h2 { font-size: 2rem; margin-bottom: 10px; }
-        .section-header p { color: #888; }
-
-        /* 1. MAP RADAR INTERAKTIF */
-        #map-container { 
-            height: 500px; width: 100%; border-radius: 30px; border: 1px solid var(--border); overflow: hidden; position: relative;
-            background: #111;
+        .hero-content h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .map-overlay { position: absolute; top: 20px; right: 20px; z-index: 1000; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 15px; border: 1px solid var(--border); }
 
-        /* 2. ANALYTICS & STATS */
-        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 30px; }
-        .card { background: var(--card-bg); border: 1px solid var(--border); padding: 30px; border-radius: 25px; transition: 0.3s; }
-        .card:hover { border-color: var(--primary); }
-        .card i { font-size: 1.5rem; color: var(--primary); margin-bottom: 15px; }
+        .hero-content p {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
 
-        /* 3. AI PREDICTION */
-        .ai-badge { background: linear-gradient(90deg, #00d2ff, #3a7bd5); color: #000; font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 50px; text-transform: uppercase; margin-bottom: 10px; display: inline-block; }
+        .btn-main {
+            background: var(--accent);
+            color: #000;
+            padding: 15px 35px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: 0.3s;
+            display: inline-block;
+        }
 
-        /* --- NOTIFICATION POPUP --- */
-        .notification { position: fixed; bottom: 30px; right: 30px; background: var(--danger); color: #fff; padding: 20px 30px; border-radius: 20px; z-index: 3000; display: none; animation: slideIn 0.5s ease; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0, 210, 255, 0.3); }
 
-        /* Chart */
-        .chart-box { background: var(--card-bg); border: 1px solid var(--border); padding: 30px; border-radius: 30px; margin-top: 30px; height: 400px; }
+        /* --- SECTION GENERIC --- */
+        section { padding: 100px 30px; max-width: 1200px; margin: 0 auto; }
+        
+        .section-tag {
+            color: var(--accent);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            display: block;
+            text-align: center;
+        }
 
-        footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--border); color: #555; font-size: 0.9rem; }
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 50px;
+        }
 
-        @media (max-width: 768px) { .nav-links { display: none; } }
+        /* --- GRID LAYOUT --- */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 40px;
+            border-radius: 24px;
+            transition: 0.4s;
+        }
+
+        .card:hover { border-color: var(--accent); background: rgba(0, 210, 255, 0.02); }
+
+        .card i { font-size: 2rem; color: var(--accent); margin-bottom: 20px; }
+
+        /* --- INTERACTIVE PROJECT SECTION --- */
+        #project { background: rgba(255,255,255,0.01); border-radius: 40px; margin-top: 50px; margin-bottom: 50px; }
+
+        .chart-box {
+            background: #000;
+            padding: 30px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            margin-top: 40px;
+            height: 450px;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 50px 30px;
+            text-align: center;
+        }
+
+        .footer-logo { font-size: 1.5rem; font-weight: 800; margin-bottom: 20px; display: block; }
+        .footer-links { display: flex; justify-content: center; gap: 30px; margin-bottom: 30px; list-style: none; }
+        .footer-links a { color: var(--text-gray); text-decoration: none; font-size: 0.9rem; }
+
+        #clock { color: var(--accent); font-weight: 800; font-size: 1.2rem; margin-bottom: 10px; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero-content h1 { font-size: 3rem; }
+        }
     </style>
 </head>
 <body>
-
-    <div id="alert-popup" class="notification">
-        <i class="fas fa-exclamation-triangle"></i> <strong>STORM ALERT!</strong> 
-        <p id="alert-msg">Lightning detected within 10km.</p>
-    </div>
 
     <nav class="navbar">
         <div class="nav-container">
             <a href="#" class="logo">STORM<span>WATCH</span></a>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
-                <li><a href="#radar">Live Radar</a></li>
+                <li><a href="#flow">Process</a></li>
+                <li><a href="#features">Features</a></li>
                 <li><a href="#project">Interactive</a></li>
-                <li><a href="#analytics">Analytics</a></li>
                 <li><a href="#mission">Mission</a></li>
             </ul>
-            <a href="javascript:void(0)" onclick="testAlert()" class="btn" style="font-size: 0.8rem; padding: 8px 20px;">NOTIFY ON</a>
+            <a href="#project" class="btn-main" style="padding: 10px 20px; font-size: 0.8rem;">LIVE DATA</a>
         </div>
     </nav>
 
     <div class="hero" id="home">
         <div class="hero-content">
-            <div class="ai-badge">AI Powered Detection</div>
-            <h1>Smart Weather Intelligence</h1>
-            <p>Beyond simple monitoring. We provide real-time radar layers, AI predictions, and personalized safety alerts.</p>
-            <a href="#radar" class="btn">Launch Live Radar</a>
+            <span class="section-tag">Empowering Safety with IoT</span>
+            <h1>Next-Gen Lightning Monitoring</h1>
+            <p>Advanced real-time detection and analysis system built for the UTHM community. Precision, Speed, and Reliability.</p>
+            <a href="#flow" class="btn-main">Explore Project</a>
         </div>
     </div>
 
-    <section id="radar">
-        <div class="section-header">
-            <span style="color: var(--primary); font-weight: 800;">[FITUR 1 & 4]</span>
-            <h2>Interactive Radar Map</h2>
-            <p>Live rain and storm layers integrated from Global Weather APIs (RainViewer).</p>
-        </div>
-        <div id="map-container">
-            <div id="map" style="height: 100%; width: 100%;"></div>
-            <div class="map-overlay">
-                <p style="font-size: 0.8rem; font-weight: 800; margin-bottom: 10px;">MAP LAYERS</p>
-                <button onclick="changeLayer('radar')" style="cursor:pointer; background: #222; color:#fff; border:none; padding: 5px 10px; border-radius: 5px;">Radar</button>
-                <button onclick="changeLayer('satellite')" style="cursor:pointer; background: #222; color:#fff; border:none; padding: 5px 10px; border-radius: 5px;">Satellite</button>
+    <section id="flow">
+        <span class="section-tag">How it's built</span>
+        <h2 class="section-title">System Architecture</h2>
+        
+        <div class="grid">
+            <div class="card">
+                <div class="node-num" style="color: var(--accent); font-weight: 800; margin-bottom: 10px;">01</div>
+                <h3>Hardware Layer</h3>
+                <p>Equipped with AS3935 Franklin Sensor and ESP32 for high-speed signal processing.</p>
+            </div>
+            <div class="card">
+                <div class="node-num" style="color: var(--accent); font-weight: 800; margin-bottom: 10px;">02</div>
+                <h3>Cloud Sync</h3>
+                <p>Seamless data transmission via Blynk IoT Cloud platform with 99.9% uptime.</p>
+            </div>
+            <div class="card">
+                <div class="node-num" style="color: var(--accent); font-weight: 800; margin-bottom: 10px;">03</div>
+                <h3>Visualization</h3>
+                <p>Interactive dashboard providing real-time proximity alerts and history logs.</p>
             </div>
         </div>
     </section>
 
     <section id="project">
-        <div class="section-header">
-            <span style="color: var(--primary); font-weight: 800;">[FITUR 3, 5 & 6]</span>
-            <h2>Interactive Project Dashboard</h2>
-            <p>Personalized IoT data processed with AI prediction models.</p>
-        </div>
-        <div class="grid-stats">
-            <div class="card">
-                <p style="color: #666; font-size: 0.8rem; font-weight: 800;">CURRENT SENSOR READ</p>
-                <h2 id="dist-val" style="font-size: 3rem; margin: 10px 0;">-- KM</h2>
-                <div id="esp-status" style="color: var(--danger); font-size: 0.8rem;">● DISCONNECTED</div>
+        <span class="section-tag">Live Feed</span>
+        <h2 class="section-title">Interactive Project</h2>
+        
+        <div class="grid">
+            <div class="card" style="text-align: center;">
+                <p style="font-size: 0.8rem; letter-spacing: 2px; color: var(--text-gray);">STORM PROXIMITY</p>
+                <h2 id="dist-val" style="font-size: 4rem; color: #fff; margin: 10px 0;">-- KM</h2>
+                <span id="esp-status" style="color: #ff4757; font-weight: 800; font-size: 0.8rem;">● DISCONNECTED</span>
             </div>
             <div class="card">
-                <div class="ai-badge">Machine Learning</div>
-                <h3>Next Strike Prediction</h3>
-                <p style="color: #888; margin-top: 10px;">Predicted Impact: <strong>14:25 MYT</strong></p>
-                <p style="color: #888;">Confidence: <span style="color: var(--primary);">88%</span></p>
-            </div>
-            <div class="card">
-                <i class="fas fa-location-dot"></i>
-                <h3>Personalized Zone</h3>
-                <p style="color: #888;">Location: <strong>UTHM, Parit Raja</strong></p>
-                <p style="color: var(--warning); font-weight: bold; margin-top: 5px;">STATUS: HIGH RISK</p>
+                <h3>Node Information</h3>
+                <div style="margin-top: 15px; color: var(--text-gray);">
+                    <p>Developer: <strong>Ameer Hakim</strong></p>
+                    <p>Student ID: <strong>CN230083</strong></p>
+                    <p>Device: <strong>Node-01 (ESP32)</strong></p>
+                </div>
             </div>
         </div>
 
-        <div class="chart-box" id="analytics">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3>Strike Trend Analysis (Weekly)</h3>
-                <button onclick="downloadCSV()" style="background:none; border: 1px solid var(--border); color:#fff; padding: 5px 15px; border-radius: 5px; cursor:pointer;">Export CSV</button>
-            </div>
-            <div style="height: 300px;">
-                <canvas id="weeklyChart"></canvas>
+        <div class="chart-box">
+            <div class="chart-container" style="height: 100%;">
+                <canvas id="lightningChart"></canvas>
             </div>
         </div>
     </section>
 
     <section id="mission">
-        <div class="card" style="text-align: center; border-radius: 50px;">
-            <i class="fas fa-shield-heart" style="font-size: 3rem;"></i>
-            <h2 style="margin-bottom: 20px;">Mission for Safety</h2>
-            <p style="max-width: 800px; margin: 0 auto; font-size: 1.4rem; font-style: italic; color: #ddd;">
-                "Our mission is to minimize the danger of outdoor activities by providing 
-                precision weather intelligence through high-performance IoT sensors 
-                and predictive AI technology."
+        <span class="section-tag">Our Vision</span>
+        <h2 class="section-title">Safeguarding the Future</h2>
+        <div class="card" style="text-align: center; max-width: 800px; margin: 0 auto;">
+            <p style="font-size: 1.5rem; font-style: italic; color: #fff;">
+                "To leverage Internet of Things (IoT) technology in creating a safer campus environment by providing accurate, real-time lightning alerts to everyone."
             </p>
         </div>
     </section>
 
     <footer>
-        <p id="myt-clock" style="color: var(--primary); font-weight: 800; font-size: 1.2rem;"></p>
-        <p>STORM-WATCH PRO &copy; 2026 | Built by Ameer Hakim (CN230083)</p>
-        <p style="margin-top: 10px; opacity: 0.5;">Integrated with Blynk IoT & Windy API Ecosystem</p>
+        <div id="clock">00:00:00 AM</div>
+        <p style="color: var(--text-gray); font-size: 0.8rem; margin-bottom: 20px;">MALAYSIA STANDARD TIME (MYT)</p>
+        
+        <a href="#" class="logo" style="justify-content: center; margin-bottom: 10px;">STORM<span>WATCH</span></a>
+        <ul class="footer-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#flow">Process</a></li>
+            <li><a href="#project">Interactive</a></li>
+        </ul>
+        <p style="color: #444; font-size: 0.7rem;">&copy; 2026 StormWatch. Developed for UTHM Engineering Project.</p>
     </footer>
 
     <script>
         const BLYNK_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd";
         const URL_V1 = `https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&V1`;
 
-        // 1. JAM REAL-TIME
+        // Jam MYT
         setInterval(() => {
-            document.getElementById('myt-clock').innerText = new Date().toLocaleTimeString('en-US', { hour12: true }) + " (MYT)";
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
         }, 1000);
 
-        // 2. LEAFLET MAP (Radar Integration)
-        const map = L.map('map').setView([1.8548, 103.0844], 10); // Center at UTHM
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { opacity: 0.3 }).addTo(map);
-
-        // Radar Overlay Simulation (RainViewer Style)
-        const radarLayer = L.tileLayer('https://tilecache.rainviewer.com/v2/radar/1674123000/256/{z}/{x}/{y}/2/1_1.png', {
-            opacity: 0.6
-        }).addTo(map);
-
-        function changeLayer(type) {
-            if(type === 'satellite') {
-                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
-            } else {
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            }
-        }
-
-        // 3. CHART.JS (Analytics)
-        const ctx = document.getElementById('weeklyChart').getContext('2d');
-        const weeklyChart = new Chart(ctx, {
-            type: 'bar',
+        // Chart Setup
+        const ctx = document.getElementById('lightningChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'line',
             data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                labels: [],
                 datasets: [{
-                    label: 'Strikes Detected',
-                    data: [12, 19, 3, 5, 2, 3, 10],
-                    backgroundColor: '#00d2ff',
-                    borderRadius: 10
+                    label: 'Strike Distance (KM)',
+                    data: [],
+                    borderColor: '#00d2ff',
+                    backgroundColor: 'rgba(0, 210, 255, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: { 
-                    y: { grid: { color: '#111' } },
-                    x: { grid: { display: false } }
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, max: 40, grid: { color: '#111' }, ticks: { color: '#555' } },
+                    x: { grid: { display: false }, ticks: { color: '#555' } }
                 }
             }
         });
 
-        // 4. BLYNK DATA & ALERT SYSTEM
-        async function fetchBlynk() {
+        // Ambil Data dari Blynk
+        async function updateData() {
             try {
-                const res = await fetch(URL_V1);
-                const data = await res.text();
+                const response = await fetch(URL_V1);
+                const data = await response.text();
                 const dist = parseInt(data);
 
-                if(!isNaN(dist)) {
+                if (!isNaN(dist)) {
                     document.getElementById('dist-val').innerText = dist + " KM";
                     document.getElementById('esp-status').innerText = "● DEVICE ONLINE";
                     document.getElementById('esp-status').style.color = "#00ff88";
+                    
+                    const now = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-                    // AUTO ALERT TRIGGER
-                    if(dist < 15) {
-                        triggerAlert(`DANGER! Lightning detected at ${dist}km. Seek shelter immediately.`);
+                    if (myChart.data.labels.length > 20) {
+                        myChart.data.labels.shift();
+                        myChart.data.datasets[0].data.shift();
                     }
+                    myChart.data.labels.push(now);
+                    myChart.data.datasets[0].data.push(dist);
+                    myChart.update();
                 }
-            } catch(e) { 
+            } catch (e) {
                 document.getElementById('esp-status').innerText = "● DEVICE OFFLINE";
                 document.getElementById('esp-status').style.color = "#ff4757";
             }
         }
 
-        function triggerAlert(msg) {
-            const popup = document.getElementById('alert-popup');
-            document.getElementById('alert-msg').innerText = msg;
-            popup.style.display = 'block';
-            setTimeout(() => { popup.style.display = 'none'; }, 5000);
-        }
-
-        function testAlert() {
-            triggerAlert("Personalized Alert: Storm detected moving towards UTHM Campus Zone.");
-        }
-
-        function downloadCSV() {
-            alert("Exporting analytics data to StormWatch_Report.csv...");
-        }
-
-        setInterval(fetchBlynk, 5000);
-        fetchBlynk();
+        setInterval(updateData, 5000);
+        updateData();
     </script>
 </body>
 </html>
