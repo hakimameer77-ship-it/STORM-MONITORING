@@ -1,9 +1,9 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StormWatch | Smart IoT Solutions</title>
+    <title>StormWatch | UTHM Pagoh IoT</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
@@ -102,9 +102,9 @@
             transition: 0.4s;
             position: relative;
         }
-        .card:hover { border-color: var(--accent); }
+        .card:hover { border-color: var(--accent); transform: translateY(-5px); }
 
-        /* --- SYSTEM ARCHITECTURE SPECIFIC --- */
+        /* --- SYSTEM ARCHITECTURE --- */
         .node-num {
             position: absolute;
             top: 20px;
@@ -151,7 +151,7 @@
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#architecture">Architecture</a></li>
-                <li><a href="#project">Interactive</a></li>
+                <li><a href="#project">Dashboard</a></li>
                 <li><a href="#mission">Mission</a></li>
             </ul>
             <a href="#project" style="background: var(--accent); color: #000; padding: 10px 20px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.8rem;">LIVE DATA</a>
@@ -160,44 +160,44 @@
 
     <div class="hero" id="home">
         <div class="hero-content">
-            <span class="section-tag">Empowering Safety with IoT</span>
-            <h1>Next-Gen Lightning Monitoring</h1>
-            <p style="color: var(--text-gray); max-width: 600px; margin: 0 auto 30px;">Advanced real-time detection and precision analysis built for the UTHM community.</p>
-            <a href="#architecture" style="background: var(--accent); color: #000; padding: 15px 35px; border-radius: 50px; text-decoration: none; font-weight: 700;">Explore System</a>
+            <span class="section-tag">Safety Innovation</span>
+            <h1>UTHM Pagoh Storm Monitoring</h1>
+            <p style="color: var(--text-gray); max-width: 600px; margin: 0 auto 30px;">Real-time lightning detection system powered by IoT for campus-wide early warning.</p>
+            <a href="#architecture" style="background: var(--accent); color: #000; padding: 15px 35px; border-radius: 50px; text-decoration: none; font-weight: 700; transition: 0.3s;">See Architecture</a>
         </div>
     </div>
 
     <section id="architecture">
-        <span class="section-tag">How it's built</span>
+        <span class="section-tag">Development Framework</span>
         <h2 class="section-title">System Architecture</h2>
         <div class="grid">
             <div class="card">
                 <div class="node-num">01</div>
-                <i class="fa-solid fa-microchip" style="font-size: 2rem; color: var(--accent); margin-bottom: 20px;"></i>
-                <h3>Hardware Layer</h3>
-                <p style="color: var(--text-gray); margin-top: 10px;">Equipped with **AS3935 Franklin Sensor** and **ESP32** for high-speed atmospheric signal processing and lightning detection.</p>
+                <i class="fa-solid fa-bolt-lightning" style="font-size: 2rem; color: var(--accent); margin-bottom: 20px;"></i>
+                <h3>Sensing Layer</h3>
+                <p style="color: var(--text-gray); margin-top: 10px;">Menggunakan **AS3935 Franklin Sensor** untuk mengesan aktiviti elektrik di atmosfera dan **ESP32** sebagai pemproses utama.</p>
             </div>
             <div class="card">
                 <div class="node-num">02</div>
-                <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: var(--accent); margin-bottom: 20px;"></i>
-                <h3>Cloud Integration</h3>
-                <p style="color: var(--text-gray); margin-top: 10px;">Seamless data transmission via **Blynk IoT Cloud** API, ensuring real-time synchronization and 24/7 data availability.</p>
+                <i class="fa-solid fa-wifi" style="font-size: 2rem; color: var(--accent); margin-bottom: 20px;"></i>
+                <h3>Transmission</h3>
+                <p style="color: var(--text-gray); margin-top: 10px;">Data dihantar secara tanpa wayar ke **Blynk Cloud** menggunakan protokol HTTPS/API untuk akses jarak jauh.</p>
             </div>
             <div class="card">
                 <div class="node-num">03</div>
-                <i class="fa-solid fa-chart-line" style="font-size: 2rem; color: var(--accent); margin-bottom: 20px;"></i>
-                <h3>Visualization</h3>
-                <p style="color: var(--text-gray); margin-top: 10px;">A responsive **Web Dashboard** that visualizes proximity trends and provides instant safety alerts to end-users.</p>
+                <i class="fa-solid fa-display" style="font-size: 2rem; color: var(--accent); margin-bottom: 20px;"></i>
+                <h3>Application</h3>
+                <p style="color: var(--text-gray); margin-top: 10px;">Web Dashboard yang responsif memaparkan visualisasi graf dan memberikan amaran **Danger/Warning** secara automatik.</p>
             </div>
         </div>
     </section>
 
     <section id="project">
-        <span class="section-tag">Live Feed</span>
-        <h2 class="section-title">Monitoring Dashboard</h2>
+        <span class="section-tag">Live Intelligence</span>
+        <h2 class="section-title">Real-Time Dashboard</h2>
 
         <div id="status-banner" style="background: rgba(255,255,255,0.05);">
-            CONNECTING TO BLYNK SERVER...
+            WAITING FOR DATA...
         </div>
         
         <div class="grid">
@@ -208,12 +208,12 @@
             </div>
 
             <div class="card">
-                <h3><i class="fa-solid fa-location-dot" style="color: var(--accent); margin-right: 10px;"></i> Deployment Site</h3>
+                <h3><i class="fa-solid fa-map-location-dot" style="color: var(--accent); margin-right: 10px;"></i> Location Data</h3>
                 <div style="margin-top: 15px; color: var(--text-gray); font-size: 0.9rem;">
-                    <p>Developer: <strong>Ameer Hakim (CN230083)</strong></p>
-                    <p>Site: <strong>UTHM, Parit Raja, Johor</strong></p>
-                    <p>Coordinates: <strong>1.8531° N, 103.0865° E</strong></p>
-                    <p>Current Status: <strong id="loc-status" style="color: #00ff88;">Active Monitoring</strong></p>
+                    <p>Campus: <strong>UTHM Pagoh, Johor</strong></p>
+                    <p>Hub: <strong>Pagoh Higher Education Hub</strong></p>
+                    <p>Coordinates: <strong>2.1481° N, 102.7303° E</strong></p>
+                    <p>Monitoring: <strong id="loc-status" style="color: #00ff88;">ACTIVE</strong></p>
                 </div>
             </div>
         </div>
@@ -225,10 +225,10 @@
 
     <section id="mission">
         <span class="section-tag">Our Vision</span>
-        <h2 class="section-title">Safeguarding the Future</h2>
+        <h2 class="section-title">Safety First</h2>
         <div class="card" style="text-align: center; max-width: 800px; margin: 0 auto;">
             <p style="font-size: 1.2rem; font-style: italic; color: #fff;">
-                "To leverage Internet of Things (IoT) technology in creating a safer campus environment by providing accurate, real-time lightning alerts to everyone."
+                "To leverage Internet of Things (IoT) technology in creating a safer campus environment by providing accurate, real-time lightning alerts to everyone in UTHM Pagoh."
             </p>
         </div>
     </section>
@@ -236,37 +236,33 @@
     <footer>
         <div id="clock">00:00:00 AM</div>
         <p style="color: var(--text-gray); font-size: 0.8rem; margin-bottom: 20px;">MALAYSIA STANDARD TIME (MYT)</p>
-        <p style="color: #444; font-size: 0.7rem;">&copy; 2026 StormWatch. Developed for UTHM Engineering Project.</p>
+        <p style="color: #444; font-size: 0.7rem;">&copy; 2026 StormWatch. Developed by Ameer Hakim for UTHM Pagoh Project.</p>
     </footer>
 
     <script>
         const BLYNK_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd";
         const URL_V1 = `https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&V1`;
 
-        // Request Desktop Notification Permission
         if (Notification.permission !== "denied") {
             Notification.requestPermission();
         }
 
-        // Live Clock
         setInterval(() => {
             document.getElementById('clock').innerText = new Date().toLocaleTimeString();
         }, 1000);
 
-        // Chart.js Configuration
         const ctx = document.getElementById('lightningChart').getContext('2d');
         const myChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: [],
                 datasets: [{
-                    label: 'Strike Distance (KM)',
+                    label: 'Distance (KM)',
                     data: [],
                     borderColor: '#00d2ff',
                     backgroundColor: 'rgba(0, 210, 255, 0.1)',
                     fill: true,
-                    tension: 0.4,
-                    pointRadius: 4
+                    tension: 0.4
                 }]
             },
             options: {
@@ -280,36 +276,32 @@
             }
         });
 
-        // Threshold Logic Function
         function updateAlerts(dist) {
             const banner = document.getElementById('status-banner');
             
             if (dist <= 10) {
-                banner.innerText = "🚨 DANGER: LIGHTNING STRIKE WITHIN 10KM!";
+                banner.innerText = "🚨 DANGER: STRIKE WITHIN 10KM - SEEK SHELTER!";
                 banner.style.background = "rgba(255, 71, 87, 0.2)";
                 banner.style.borderColor = "#ff4757";
                 banner.style.color = "#ff4757";
-                
-                // Trigger Desktop Notification
                 if(Notification.permission === "granted") {
-                    new Notification("CRITICAL ALERT", {body: `Danger! Lightning detected only ${dist}km away.`});
+                    new Notification("DANGER @ UTHM PAGOH", {body: "Lightning detected within 10km!"});
                 }
             } 
             else if (dist < 25) {
-                banner.innerText = "⚠️ WARNING: STORM DETECTED (Under 25km)";
+                banner.innerText = "⚠️ WARNING: STORM APPROACHING PAGOH (< 25KM)";
                 banner.style.background = "rgba(255, 165, 2, 0.2)";
                 banner.style.borderColor = "#ffa502";
                 banner.style.color = "#ffa502";
             } 
             else {
-                banner.innerText = "✅ STATUS: SAFE (No Nearby Threat)";
+                banner.innerText = "✅ STATUS: SAFE (No Immediate Lightning Threat)";
                 banner.style.background = "rgba(0, 210, 255, 0.1)";
                 banner.style.borderColor = "#00d2ff";
                 banner.style.color = "#00d2ff";
             }
         }
 
-        // API Fetch from Blynk
         async function updateData() {
             try {
                 const response = await fetch(URL_V1);
@@ -335,7 +327,6 @@
             } catch (e) {
                 document.getElementById('esp-status').innerText = "● DEVICE OFFLINE";
                 document.getElementById('esp-status').style.color = "#ff4757";
-                document.getElementById('status-banner').innerText = "SYSTEM OFFLINE: CHECK HARDWARE CONNECTION";
             }
         }
 
