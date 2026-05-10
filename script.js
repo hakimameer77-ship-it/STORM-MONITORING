@@ -3,13 +3,13 @@ const BLYNK_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd";
 const V_DIST = "V1"; 
 const URL_DIST = `https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&${V_DIST}`;
 
-// --- 1. LIGHTNING STRIKE LOGIC ---
+// --- 1. LIGHTNING STRIKE LOGIC (ANIMATION) ---
 const flashLayer = document.getElementById('flash-effect');
 function triggerLightning() {
-    flashLayer.classList.add('strike-anim');
-    setTimeout(() => flashLayer.classList.remove('strike-anim'), 400);
-    
-    // Random interval for the next flash (between 5 to 15 seconds)
+    if(flashLayer) {
+        flashLayer.classList.add('strike-anim');
+        setTimeout(() => flashLayer.classList.remove('strike-anim'), 400);
+    }
     const nextStrike = Math.random() * (15000 - 5000) + 5000;
     setTimeout(triggerLightning, nextStrike);
 }
@@ -22,23 +22,21 @@ function toggleMenu() {
 
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
-        // Toggle Active Class in Nav
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         item.classList.add('active');
         
-        // Switch Section
         const target = item.getAttribute('data-target');
         document.querySelectorAll('.main-section').forEach(s => s.classList.remove('active'));
         document.getElementById(target).classList.add('active');
         
-        // Close Mobile Menu if open
         if(window.innerWidth <= 850) toggleMenu();
     });
 });
 
 // --- 3. REAL-TIME CLOCK (MYT) ---
 setInterval(() => {
-    document.getElementById('myt-clock').innerText = "MYT Time: " + new Date().toLocaleTimeString('en-US', { hour12: true });
+    const clock = document.getElementById('myt-clock');
+    if(clock) clock.innerText = "MYT Time: " + new Date().toLocaleTimeString('en-US', { hour12: true });
 }, 1000);
 
 // --- 4. CHART.JS CONFIGURATION ---
@@ -61,13 +59,55 @@ const liveChart = new Chart(ctx, {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { beginAtZero: true, max: 40, grid: { color: 'rgba(255,255,255,0.05)' } },
             x: { grid: { display: false } }
+        },
+        plugins: {
+            legend: { display: false }
         }
     }
 });
 
-// --- 5. BLYNK API DATA FETCHING ---
+// --- 5. EXCEL DATA LOGGING LOGIC ---
+let excelDataLog = [
+    ["Date", "Time", "Distance (KM)", "Weather"]
+];
+
+function logDataForExcel(distance) {
+    const today = new Date();
+    const date = today.toLocaleDateString('en-GB'); 
+    const time = today.toLocaleTimeString('en-US', { hour12: true });
+    
+    let weather = "Clear / Safe";
+    if (distance <= 10) weather = "Stormy / DANGER";
+    else if (distance < 25) weather = "Approaching Storm / WARNING";
+
+    excelDataLog.push([date, time, distance, weather]);
+}
+
+function downloadExcel() {
+    if (excelDataLog.length <= 1) {
+        alert("The system is collecting data. Please wait a few seconds before downloading.");
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+    excelDataLog.forEach(function(rowArray) {
+        let row = rowArray.join(",");
+        csvContent += row + "\r\n";
+    });
+
+    var encodedUri = encodeURI(csvContent);
+    var link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "StormWatch_Data_Log.csv");
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// --- 6. BLYNK API DATA FETCHING ---
 async function fetchBlynkData() {
     try {
         const response = await fetch(URL_DIST);
@@ -89,16 +129,23 @@ async function fetchBlynkData() {
 function setSystemStatus(isOnline) {
     const statusText = document.getElementById('esp-status');
     const dot = document.getElementById('status-dot');
-    statusText.innerText = isOnline ? "ONLINE" : "OFFLINE";
+    if(!statusText || !dot) return;
+
+    statusText.innerText = isOnline ? "DEVICE ONLINE" : "DEVICE OFFLINE";
     statusText.style.color = isOnline ? "#00ff88" : "#ff4757";
     dot.style.background = isOnline ? "#00ff88" : "#ff4757";
 }
 
 function updateUI(dist) {
-    document.getElementById('storm-distance').innerText = dist + " KM";
+    const distEl = document.getElementById('storm-distance');
+    if(distEl) distEl.innerText = dist + " KM";
+    
     const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // Limit chart data to last 15 entries
+    // Record data for Excel
+    logDataForExcel(dist);
+
+    // Update Chart
     if (liveChart.data.labels.length > 15) {
         liveChart.data.labels.shift();
         liveChart.data.datasets[0].data.shift();
@@ -109,6 +156,6 @@ function updateUI(dist) {
     liveChart.update();
 }
 
-// Automatically fetch data every 5 seconds
+// Start the system - fetch data every 5 seconds
 setInterval(fetchBlynkData, 5000);
 fetchBlynkData();
