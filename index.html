@@ -40,11 +40,14 @@
             <div class="db-status">
                 <i class="fa-solid fa-server"></i>
                 <div class="status-text">
-                    <strong>Server Online</strong>
-                    <span>Latency: 12ms</span>
+                    <strong>Blynk Cloud</strong>
+                    <span id="blynk-status">Connecting...</span>
                 </div>
-                <div class="ping-dot"></div>
+                <div class="ping-dot" id="ping-indicator"></div>
             </div>
+            <button onclick="clearSystemData()" style="width:100%; margin-top:10px; padding:8px; background:transparent; border:1px solid #ef4444; color:#ef4444; border-radius:6px; cursor:pointer; font-size:0.75rem; transition:0.3s;">
+                <i class="fa-solid fa-trash"></i> Reset Data Logs
+            </button>
         </div>
     </aside>
 
@@ -55,7 +58,7 @@
                 <i class="fa-solid fa-bars"></i>
             </div>
             <div class="top-bar-left">
-                <span class="system-status"><i class="fa-solid fa-shield-check"></i> System Secure</span>
+                <span class="system-status" id="header-status"><i class="fa-solid fa-shield-check"></i> System Secure</span>
             </div>
             <div class="top-bar-right">
                 <div class="live-clock" id="live-clock">--:--:--</div>
@@ -80,7 +83,7 @@
                 <div class="hero-content">
                     <span class="badge-pro">PROJECT DASHBOARD</span>
                     <h2>UTHM Pagoh Storm Monitoring</h2>
-                    <p>Real-time lightning detection infrastructure powered by IoT. Monitoring electromagnetic RF signals for campus-wide early warning protocols.</p>
+                    <p>Real-time lightning detection infrastructure powered by IoT. Monitoring electromagnetic RF signals for campus-wide early warning protocols directly from Blynk Cloud.</p>
                 </div>
             </div>
 
@@ -96,14 +99,14 @@
                     <div class="icon-wrap"><i class="fa-solid fa-network-wired"></i></div>
                     <div class="text-wrap">
                         <h3>Transmission</h3>
-                        <p>Cloud API over secure HTTPS</p>
+                        <p>Blynk Cloud API over HTTPS</p>
                     </div>
                 </div>
                 <div class="feature-box">
                     <div class="icon-wrap"><i class="fa-solid fa-laptop-code"></i></div>
                     <div class="text-wrap">
                         <h3>Application</h3>
-                        <p>Web Dashboard & CSV Export</p>
+                        <p>Live Web Dashboard & CSV Export</p>
                     </div>
                 </div>
             </div>
@@ -128,7 +131,7 @@
             
             <div class="chart-container mt-20">
                 <div class="chart-header">
-                    <h3>Real-time Tracking Matrix</h3>
+                    <h3>Real-time Tracking Matrix (Recent Logs)</h3>
                 </div>
                 <canvas id="liveChart" height="80"></canvas>
             </div>
@@ -138,7 +141,7 @@
             <div class="page-header flex-between">
                 <div>
                     <h1>System Event Logs</h1>
-                    <p>Historical archive of detection events</p>
+                    <p>Historical archive of detection events (Recorded locally)</p>
                 </div>
                 <button class="btn-primary" onclick="downloadExcel()">
                     <i class="fa-solid fa-download"></i> Export CSV Report
@@ -175,10 +178,10 @@
                         <thead>
                             <tr>
                                 <th>Severity</th>
-                                <th>Timestamp</th>
+                                <th>Date</th>
+                                <th>Time</th>
                                 <th>Proximity</th>
                                 <th>Classification</th>
-                                <th>Zone / Sector</th>
                             </tr>
                         </thead>
                         <tbody id="table-body">
@@ -191,12 +194,12 @@
         <section id="analytics" class="tab-content">
             <div class="page-header">
                 <h1>Analytics Hub</h1>
-                <p>Data visualization and system metrics over time</p>
+                <p>Data visualization and system metrics from recorded history</p>
             </div>
 
             <div class="stats-grid grid-4">
                 <div class="stat-card metric-card">
-                    <p>Total Events</p>
+                    <p>Total Events Logged</p>
                     <h3 id="total-detections">0</h3>
                 </div>
                 <div class="stat-card metric-card">
@@ -204,19 +207,19 @@
                     <h3 id="avg-distance">0 KM</h3>
                 </div>
                 <div class="stat-card metric-card">
-                    <p>Peak Activity Hour</p>
-                    <h3>15:00 PM</h3>
+                    <p>Latest Status</p>
+                    <h3 id="latest-status">N/A</h3>
                 </div>
                 <div class="stat-card metric-card">
-                    <p>Sensor Uptime</p>
-                    <h3 class="text-safe">99.9%</h3>
+                    <p>System Sync</p>
+                    <h3 class="text-safe" id="sync-uptime">Active</h3>
                 </div>
             </div>
 
             <div class="charts-grid mt-20">
                 <div class="chart-container">
                     <div class="chart-header">
-                        <h3>Weekly Detection Volume</h3>
+                        <h3>Detection Trends (Latest Logs)</h3>
                     </div>
                     <canvas id="barChart" height="250"></canvas>
                 </div>
