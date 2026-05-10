@@ -3,102 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StormWatch | UTHM Pagoh IoT</title>
-    
+    <title>Lightning Detect | Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-    <div class="lightning-bg"></div>
-    <div id="flash-effect" class="flash-overlay"></div>
-
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo"><i class="fa-solid fa-bolt-lightning"></i> STORM<span>WATCH</span></div>
-            <ul class="nav-links" id="nav-links">
-                <li class="nav-item active" data-target="home-section">Home</li>
-                <li class="nav-item" data-target="dashboard-section">Dashboard</li>
-            </ul>
-            <div class="mobile-menu" onclick="toggleMenu()">
-                <i class="fa-solid fa-bars"></i>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-icon"><i class="fa-solid fa-cloud-bolt"></i></div>
+            <div>
+                <h2>Lightning Detect</h2>
+                <p>RF Monitoring</p>
             </div>
         </div>
-    </nav>
 
-    <div class="content-wrapper">
+        <ul class="nav-menu">
+            <li class="nav-item active" onclick="switchTab('home')"><i class="fa-solid fa-house"></i> Home</li>
+            <li class="nav-item" onclick="switchTab('dashboard')"><i class="fa-solid fa-border-all"></i> Dashboard</li>
+            <li class="nav-item" onclick="switchTab('alerts')"><i class="fa-regular fa-bell"></i> Alerts History</li>
+            <li class="nav-item" onclick="switchTab('analytics')"><i class="fa-solid fa-chart-line"></i> Analytics</li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="db-status">
+                <i class="fa-solid fa-database"></i>
+                <div>
+                    <strong>DB Connected</strong>
+                    <span>Realtime Sync</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
         
-        <section id="home-section" class="main-section active">
-            <div class="hero-box">
-                <h1>UTHM Pagoh Storm Monitoring</h1>
-                <p style="color: #ccc; margin-bottom: 20px;">Real-time lightning detection system powered by IoT for campus-wide early warning.</p>
+        <section id="home" class="tab-content active">
+            <div class="header-title">
+                <h1>System Overview</h1>
+                <p>Monitor lightning activities and RF values across all sectors.</p>
             </div>
             
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="node-num">01</div>
-                    <i class="fa-solid fa-microchip"></i>
-                    <h3>Sensing Layer</h3>
-                    <p style="color: #bbb; font-size: 0.9rem;">AS3935 Franklin Sensor & ESP32</p>
+            <div class="hero-card" style="margin-bottom: 30px;">
+                <h2>UTHM Pagoh Storm Monitoring</h2>
+                <p>Real-time lightning detection system powered by IoT for campus-wide early warning. Navigate using the sidebar to view live monitoring, alert history, and data analytics.</p>
+            </div>
+
+            <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="stat-card" style="text-align: center;">
+                    <i class="fa-solid fa-microchip" style="font-size: 2.5rem; color: #2563eb; margin-bottom: 15px;"></i>
+                    <h3 class="stat-title" style="font-size: 1.1rem; color: var(--text-dark);">Sensing Layer</h3>
+                    <div class="stat-desc">AS3935 Franklin Sensor & ESP32</div>
                 </div>
-                <div class="feature-card">
-                    <div class="node-num">02</div>
-                    <i class="fa-solid fa-wifi"></i>
-                    <h3>Transmission</h3>
-                    <p style="color: #bbb; font-size: 0.9rem;">Blynk Cloud API over HTTPS</p>
+                <div class="stat-card" style="text-align: center;">
+                    <i class="fa-solid fa-wifi" style="font-size: 2.5rem; color: #2563eb; margin-bottom: 15px;"></i>
+                    <h3 class="stat-title" style="font-size: 1.1rem; color: var(--text-dark);">Transmission</h3>
+                    <div class="stat-desc">Cloud API over HTTPS</div>
                 </div>
-                <div class="feature-card">
-                    <div class="node-num">03</div>
-                    <i class="fa-solid fa-display"></i>
-                    <h3>Application</h3>
-                    <p style="color: #bbb; font-size: 0.9rem;">Live Web Dashboard & Excel Export</p>
+                <div class="stat-card" style="text-align: center;">
+                    <i class="fa-solid fa-display" style="font-size: 2.5rem; color: #2563eb; margin-bottom: 15px;"></i>
+                    <h3 class="stat-title" style="font-size: 1.1rem; color: var(--text-dark);">Application</h3>
+                    <div class="stat-desc">Live Web Dashboard & Excel Export</div>
                 </div>
             </div>
         </section>
 
-        <section id="dashboard-section" class="main-section">
-            <h2 class="section-title">Real-Time Dashboard</h2>
-            
-            <div class="demo-grid">
-                <div class="stat-card">
-                    <p style="font-size: 0.8rem; letter-spacing: 2px; color: #bbb;">STORM PROXIMITY</p>
-                    <h2 id="storm-distance" style="font-size: 4rem; color: var(--primary); margin: 10px 0;">-- KM</h2>
-                    <p style="font-weight: bold;">
-                        <span id="status-dot" class="dot pulse"></span> 
-                        <span id="esp-status" style="color: #ff4757;">WAITING FOR DATA...</span>
-                    </p>
+        <section id="dashboard" class="tab-content">
+            <div class="header-title">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1>Live Dashboard</h1>
+                        <p>Real-time lightning distance monitoring</p>
+                    </div>
+                    <div class="realtime-badge"><i class="fa-solid fa-circle-play"></i> Realtime</div>
                 </div>
+            </div>
 
-                <div class="stat-card" style="border-color: #217346;">
-                    <h3><i class="fa-solid fa-database"></i> Data Export</h3>
-                    <p style="font-size: 0.9rem; color: #bbb; margin: 15px 0;">
-                        Download the latest lightning strike data log for analysis.
-                    </p>
-                    <button onclick="downloadExcel()" class="excel-btn">
-                        <i class="fa-solid fa-file-excel"></i> Download to Excel (.CSV)
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 class="stat-title">Current Proximity</h3>
+                    <div class="stat-value" id="live-distance">-- KM</div>
+                    <div class="stat-desc" id="live-status">Waiting for data...</div>
+                </div>
+            </div>
+            
+            <div class="chart-container" style="margin-top: 20px;">
+                <h3>Live Distance Tracking</h3>
+                <canvas id="liveChart" height="80"></canvas>
+            </div>
+        </section>
+
+        <section id="alerts" class="tab-content">
+            <div class="header-title">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1>Alert History</h1>
+                        <p>Past lightning detection events and warnings</p>
+                    </div>
+                    <button class="btn-excel" onclick="downloadExcel()">
+                        <i class="fa-solid fa-file-excel"></i> Export to Excel (.CSV)
                     </button>
                 </div>
             </div>
 
-            <div class="chart-box">
-                <div class="chart-container">
-                    <canvas id="lightningChart"></canvas>
+            <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="stat-card danger-card">
+                    <h3 class="stat-title"><i class="fa-solid fa-triangle-exclamation"></i> Danger Alerts</h3>
+                    <div class="stat-value text-danger" id="danger-count">0</div>
+                    <div class="stat-desc">All time count</div>
+                </div>
+                <div class="stat-card warning-card">
+                    <h3 class="stat-title"><i class="fa-solid fa-shield-halved"></i> Warning Alerts</h3>
+                    <div class="stat-value text-warning" id="warning-count">0</div>
+                    <div class="stat-desc">All time count</div>
+                </div>
+                <div class="stat-card safe-card">
+                    <h3 class="stat-title"><i class="fa-regular fa-circle-check"></i> Safe Status</h3>
+                    <div class="stat-value text-safe" id="safe-count">0</div>
+                    <div class="stat-desc">All time count</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Event Log</h3>
+                    <p>Showing historical detection events</p>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Distance (KM)</th>
+                            <th>Alert Level</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="analytics" class="tab-content">
+            <div class="header-title">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1>Analytics</h1>
+                        <p>Lightning detection trends and statistics (Stored data)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 class="stat-title">Total Detections</h3>
+                    <div class="stat-value" id="total-detections">0</div>
+                    <div class="stat-desc">All time events</div>
+                </div>
+                <div class="stat-card">
+                    <h3 class="stat-title">Average Distance</h3>
+                    <div class="stat-value" id="avg-distance">0 KM</div>
+                    <div class="stat-desc">From all events</div>
+                </div>
+                <div class="stat-card">
+                    <h3 class="stat-title">Peak Activity Hour</h3>
+                    <div class="stat-value">15:00</div>
+                    <div class="stat-desc">Most active time</div>
+                </div>
+                <div class="stat-card">
+                    <h3 class="stat-title">System Uptime</h3>
+                    <div class="stat-value">99.8%</div>
+                    <div class="stat-desc text-safe">Excellent</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Daily Trend (Mon-Sun)</h3>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px;">Data collected by day</p>
+                    <canvas id="barChart" height="200"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Alert Level Distribution</h3>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px;">Breakdown of alert types</p>
+                    <div style="height: 250px; display: flex; justify-content: center;">
+                        <canvas id="pieChart"></canvas>
+                    </div>
                 </div>
             </div>
         </section>
-        
-    </div>
 
-    <footer class="main-footer">
-        <div id="myt-clock">MYT Time: 00:00:00</div>
-        <p>&copy; 2026 StormWatch. Developed for UTHM Pagoh Project.</p>
-    </footer>
+    </main>
 
     <script src="script.js"></script>
 </body>
-</html>
 </html>
