@@ -48,11 +48,6 @@ body { display: flex; background-color: var(--bg-main); color: var(--text-main);
 .mobile-menu { display: none; font-size: 1.2rem; cursor: pointer; }
 .top-bar-right { display: flex; align-items: center; gap: 20px; }
 .live-clock { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); background: var(--bg-main); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-light); }
-.admin-profile { display: flex; align-items: center; gap: 10px; border-left: 1px solid var(--border-light); padding-left: 20px; }
-.admin-profile img { width: 32px; height: 32px; border-radius: 50%; }
-.admin-profile div { display: flex; flex-direction: column; }
-.admin-profile strong { font-size: 0.8rem; color: var(--text-main); }
-.admin-profile span { font-size: 0.7rem; color: var(--text-muted); }
 
 /* --- TABS & CONTENT AREA --- */
 .tab-content { display: none; padding: 30px 40px; overflow-y: auto; height: calc(100vh - 64px); animation: fadeIn 0.3s ease; }
