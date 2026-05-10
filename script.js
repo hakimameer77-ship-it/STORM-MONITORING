@@ -1,31 +1,41 @@
 // ==========================================
-// 1. TAB NAVIGATION LOGIC
+// 1. UI & NAVIGATION LOGIC
 // ==========================================
-function switchTab(tabId) {
-    // Hide all contents
+function switchTab(tabId, element) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    // Show selected content
     document.getElementById(tabId).classList.add('active');
     
-    // Update active state in sidebar
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    element.classList.add('active');
+
+    if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+    }
 }
 
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+}
+
+// Live Clock for Top Bar
+function updateClock() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
+    document.getElementById('live-clock').innerText = timeStr;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
 // ==========================================
-// 2. MOCK DATABASE (HISTORY & ANALYTICS)
+// 2. MOCK DATABASE GENERATOR
 // ==========================================
-// Generating fake historical data to populate the Analytics and Alerts History
 let dbHistory = [];
-const locations = ["Sector A", "Sector B", "Sector C", "Main Campus", "Hostel Area"];
+const zones = ["Sector A-North", "Sector B-South", "Admin Block", "Main Campus", "Hostel Zone"];
 
 function generateMockData() {
-    let dangerCount = 0;
-    let warningCount = 0;
-    let safeCount = 0;
-    let totalDistance = 0;
+    let dangerCount = 0, warningCount = 0, safeCount = 0, totalDistance = 0;
 
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 60; i++) {
         let dist = Math.floor(Math.random() * 40) + 1; // 1 to 40 KM
         let level = "Safe";
         if (dist <= 10) { level = "Danger"; dangerCount++; }
@@ -33,26 +43,23 @@ function generateMockData() {
         else { safeCount++; }
 
         let date = new Date();
-        date.setDate(date.getDate() - Math.floor(Math.random() * 7)); // Random day in last 7 days
+        date.setHours(date.getHours() - (Math.random() * 168)); // Random time in past 7 days
         
         dbHistory.push({
             date: date.toISOString().split('T')[0],
             time: date.toTimeString().split(' ')[0],
             distance: dist,
             alertLevel: level,
-            location: locations[Math.floor(Math.random() * locations.length)]
+            location: zones[Math.floor(Math.random() * zones.length)]
         });
         totalDistance += dist;
     }
 
-    // Sort by newest time
     dbHistory.sort((a, b) => new Date(b.date + 'T' + b.time) - new Date(a.date + 'T' + a.time));
 
-    // Update Analytics UI
+    // Update Dashboard Metrics
     document.getElementById('total-detections').innerText = dbHistory.length;
     document.getElementById('avg-distance').innerText = (totalDistance / dbHistory.length).toFixed(1) + " KM";
-    
-    // Update Alerts Summary UI
     document.getElementById('danger-count').innerText = dangerCount;
     document.getElementById('warning-count').innerText = warningCount;
     document.getElementById('safe-count').innerText = safeCount;
@@ -62,26 +69,20 @@ function generateMockData() {
 }
 
 // ==========================================
-// 3. POPULATE HISTORY TABLE
+// 3. POPULATE ENTERPRISE TABLE
 // ==========================================
 function populateTable() {
     const tbody = document.getElementById('table-body');
-    tbody.innerHTML = ""; // clear existing
+    tbody.innerHTML = ""; 
 
     dbHistory.forEach(record => {
-        let icon = "";
-        let badgeClass = "";
-        
-        if(record.alertLevel === "Danger") { icon = "fa-triangle-exclamation text-danger"; badgeClass = "danger"; }
-        else if(record.alertLevel === "Warning") { icon = "fa-shield-halved text-warning"; badgeClass = "warning"; }
-        else { icon = "fa-circle-check text-safe"; badgeClass = "safe"; }
+        let badgeClass = record.alertLevel.toLowerCase();
 
         const row = `<tr>
-            <td><i class="fa-solid ${icon}"></i></td>
-            <td>${record.date}</td>
-            <td>${record.time}</td>
-            <td>${record.distance} KM</td>
             <td><span class="badge ${badgeClass}">${record.alertLevel}</span></td>
+            <td>${record.date} <span style="color:#64748b; font-size:0.75rem; margin-left:5px;">${record.time}</span></td>
+            <td><strong>${record.distance} KM</strong></td>
+            <td>RF Signal Detected</td>
             <td>${record.location}</td>
         </tr>`;
         tbody.innerHTML += row;
@@ -89,134 +90,143 @@ function populateTable() {
 }
 
 // ==========================================
-// 4. EXPORT TO EXCEL FUNCTION
+// 4. CSV REPORT EXPORT
 // ==========================================
 function downloadExcel() {
-    if (dbHistory.length === 0) {
-        alert("No data available to export.");
-        return;
-    }
-
-    let csvContent = "data:text/csv;charset=utf-8,";
-    // CSV Headers
-    csvContent += "Date,Time,Distance (KM),Alert Level,Location\r\n";
+    if (dbHistory.length === 0) return;
     
-    // CSV Rows
+    let csv = "Severity,Date,Time,Distance(KM),Event Classification,Zone\n";
     dbHistory.forEach(row => {
-        let rowString = `${row.date},${row.time},${row.distance},${row.alertLevel},${row.location}`;
-        csvContent += rowString + "\r\n";
+        csv += `${row.alertLevel},${row.date},${row.time},${row.distance},RF Signal Detected,${row.location}\n`;
     });
 
-    // Create Download Link
-    var encodedUri = encodeURI(csvContent);
-    var link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "Lightning_Alert_History.csv");
-    document.body.appendChild(link);
-    
-    // Trigger Download
-    link.click();
-    document.body.removeChild(link);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'StormWatch_Enterprise_Log.csv');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }
 
 // ==========================================
-// 5. CHART.JS INITIALIZATION (ANALYTICS)
+// 5. CHART.JS ENTERPRISE STYLING
 // ==========================================
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.color = '#64748b';
+
 function initAnalyticsCharts(d, w, s) {
-    // Trend Bar Chart
-    const ctxBar = document.getElementById('barChart').getContext('2d');
-    new Chart(ctxBar, {
+    // Bar Chart
+    new Chart(document.getElementById('barChart').getContext('2d'), {
         type: 'bar',
         data: {
             labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            datasets: [{
-                label: 'Total Detections',
-                data: [12, 19, 3, 5, 2, 25, 10], // Simulated trend data
-                backgroundColor: '#3b82f6',
-                borderRadius: 4
+            datasets: [{ 
+                label: 'Event Count', 
+                data: [12, 19, 8, 15, 6, 25, 10], 
+                backgroundColor: '#3b82f6', 
+                borderRadius: 4,
+                barThickness: 24
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { grid: { borderDash: [4, 4], color: '#e2e8f0' }, beginAtZero: true },
+                x: { grid: { display: false } }
+            }
+        }
     });
 
     // Pie Chart
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    new Chart(ctxPie, {
+    new Chart(document.getElementById('pieChart').getContext('2d'), {
         type: 'doughnut',
         data: {
-            labels: ['Danger', 'Warning', 'Safe'],
-            datasets: [{
-                data: [d, w, s],
-                backgroundColor: ['#ef4444', '#f59e0b', '#22c55e'],
-                borderWidth: 0
-            }]
+            labels: ['Critical', 'Elevated', 'Normal'],
+            datasets: [{ data: [d, w, s], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'], borderWidth: 0 }]
         },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            cutout: '75%', 
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 20 } } } 
+        }
     });
 }
 
 // ==========================================
-// 6. LIVE DASHBOARD FETCHING (CLOUD API)
+// 6. LIVE ESP32 API INTEGRATION
 // ==========================================
-// Ensure this token matches your ESP32 Arduino code!
 const CLOUD_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd"; 
 const URL_DIST = `https://blynk.cloud/external/api/get?token=${CLOUD_TOKEN}&V1`;
 
-// Setup Live Chart on Dashboard Tab
-const ctxLive = document.getElementById('liveChart').getContext('2d');
-const liveChart = new Chart(ctxLive, {
+const liveChart = new Chart(document.getElementById('liveChart').getContext('2d'), {
     type: 'line',
-    data: {
-        labels: [],
-        datasets: [{
-            label: 'Live Distance (KM)',
-            data: [],
-            borderColor: '#2563eb',
-            backgroundColor: 'rgba(37, 99, 235, 0.1)',
-            fill: true, tension: 0.4
-        }]
+    data: { 
+        labels: [], 
+        datasets: [{ 
+            label: 'Radius (KM)', 
+            data: [], 
+            borderColor: '#2563eb', 
+            backgroundColor: 'rgba(37, 99, 235, 0.05)', 
+            fill: true, 
+            tension: 0.4, 
+            borderWidth: 2,
+            pointRadius: 0
+        }] 
     },
-    options: { responsive: true, maintainAspectRatio: false }
+    options: { 
+        responsive: true, 
+        maintainAspectRatio: false, 
+        plugins: { legend: { display: false } }, 
+        scales: { 
+            y: { beginAtZero: true, max: 40, grid: { borderDash: [4, 4], color: '#e2e8f0' } },
+            x: { grid: { display: false } }
+        },
+        interaction: { intersect: false, mode: 'index' }
+    }
 });
 
 async function fetchLiveCloudData() {
     try {
         const response = await fetch(URL_DIST);
-        const data = await response.text();
-        const distance = parseInt(data);
+        const distance = parseInt(await response.text());
 
         if (!isNaN(distance)) {
             document.getElementById('live-distance').innerText = distance + " KM";
-            
             let statusEl = document.getElementById('live-status');
+            
             if (distance <= 10) {
-                statusEl.innerHTML = '<span class="text-danger"><strong>DANGER:</strong> Storm very close</span>';
+                statusEl.innerHTML = '<span style="color:#ef4444; font-weight:600;"><i class="fa-solid fa-circle-exclamation"></i> CRITICAL: Strike proximity imminent</span>';
             } else if (distance <= 25) {
-                statusEl.innerHTML = '<span class="text-warning"><strong>WARNING:</strong> Storm approaching</span>';
+                statusEl.innerHTML = '<span style="color:#f59e0b; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> WARNING: Storm activity detected</span>';
             } else {
-                statusEl.innerHTML = '<span class="text-safe"><strong>SAFE:</strong> Clear skies</span>';
+                statusEl.innerHTML = '<span style="color:#10b981; font-weight:600;"><i class="fa-solid fa-shield-check"></i> SAFE: Conditions normal</span>';
             }
 
-            // Update Live Dashboard Chart
-            const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second:'2-digit' });
-            if (liveChart.data.labels.length > 15) {
-                liveChart.data.labels.shift();
-                liveChart.data.datasets[0].data.shift();
+            const now = new Date().toLocaleTimeString([], { hour12: false });
+            if (liveChart.data.labels.length > 20) { 
+                liveChart.data.labels.shift(); 
+                liveChart.data.datasets[0].data.shift(); 
             }
-            liveChart.data.labels.push(now);
+            liveChart.data.labels.push(now); 
             liveChart.data.datasets[0].data.push(distance);
             liveChart.update();
         }
-    } catch (error) {
-        console.error("Error fetching live data.");
+    } catch (e) { 
+        console.error("Telemetry Sync Error"); 
     }
 }
 
 // ==========================================
-// 7. INITIALIZE SYSTEM
+// BOOT SEQUENCE
 // ==========================================
 window.onload = () => {
-    generateMockData(); // Generate data for Analytics and History Table
-    setInterval(fetchLiveCloudData, 5000); // Fetch live data every 5 seconds
+    generateMockData();
     fetchLiveCloudData();
+    setInterval(fetchLiveCloudData, 5000); // Polling every 5s
 };
