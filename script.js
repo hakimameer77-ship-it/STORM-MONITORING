@@ -1,30 +1,33 @@
 const BLYNK_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd";
-let liveChart;
+let stormChart;
 
-// Fungsi Buka/Tutup Sidebar di Phone
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('active');
-    document.querySelector('.sidebar-overlay').classList.toggle('active');
+// Tukar Halaman
+function switchPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    
+    document.getElementById(pageId).classList.add('active');
+    event.currentTarget.classList.add('active');
+    
+    document.getElementById('title-display').innerText = pageId.charAt(0).toUpperCase() + pageId.slice(1);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    initClock();
-    initChart();
-    setupNavigation();
-    setInterval(syncBlynk, 2000); 
-});
+// Jam Digital
+setInterval(() => {
+    document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-GB');
+}, 1000);
 
-async function syncBlynk() {
+// Sync Blynk
+async function syncData() {
     try {
         const response = await fetch(`https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&V1`);
         if (response.ok) {
-            const val = await response.json();
-            // LOGIK: Hanya terima data jika blynk aktif (bukan null)
-            if (val !== null && val !== undefined && !isNaN(val)) {
-                updateUI(val);
+            const data = await response.json();
+            
+            // LOGIK: Hanya update jika blynk hantar data (bukan null)
+            if (data !== null && data !== undefined) {
+                updateDashboard(data);
                 updateStatus(true);
-            } else {
-                updateStatus(false);
             }
         } else {
             updateStatus(false);
@@ -34,116 +37,81 @@ async function syncBlynk() {
     }
 }
 
-function updateStatus(isActive) {
-    const dot = document.getElementById('connection-dot');
-    const text = document.getElementById('connection-status');
-    const banner = document.getElementById('system-banner');
-
-    if(isActive) {
-        dot.className = "dot-online";
-        text.innerText = "ACTIVE";
-        text.style.color = "var(--neon-green)";
-    } else {
-        dot.className = "dot-offline";
-        text.innerText = "OFFLINE";
-        text.style.color = "#64748b";
-        banner.innerText = "DEVICE OFFLINE - WAITING FOR DATA...";
-        banner.style.borderColor = "var(--border)";
-    }
+function updateStatus(active) {
+    const dot = document.getElementById('status-dot');
+    const text = document.getElementById('status-text');
+    dot.className = active ? 'dot-green' : 'dot-red';
+    text.innerText = active ? 'ONLINE' : 'OFFLINE';
 }
 
-function updateUI(val) {
+function updateDashboard(val) {
     document.getElementById('dist-val').innerText = val;
-    document.getElementById('last-sync').innerText = "Last Sync: " + new Date().toLocaleTimeString();
+    const pill = document.getElementById('alert-pill');
     
-    const percentage = ((40 - val) / 40) * 100;
-    document.getElementById('dist-bar').style.width = percentage + "%";
-
-    const banner = document.getElementById('system-banner');
     if (val <= 10) {
-        banner.innerText = "CRITICAL: LIGHTNING WITHIN 10KM!";
-        banner.style.color = "#ff4757";
-        banner.style.borderColor = "#ff4757";
-        triggerFlash();
+        pill.innerText = "DANGER: STRIKE WITHIN 10KM!";
+        pill.className = "pill-danger";
     } else {
-        banner.innerText = "SYSTEM ACTIVE: MONITORING NOMINAL";
-        banner.style.color = "var(--neon-green)";
-        banner.style.borderColor = "var(--neon-green)";
+        pill.innerText = "STATUS: SAFE (NO THREAT)";
+        pill.className = "pill-safe";
     }
 
-    updateChart(val);
-    if(val < 40) addRow(val);
+    // Update Graf
+    const now = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    if (stormChart.data.labels.length > 15) {
+        stormChart.data.labels.shift();
+        stormChart.data.datasets[0].data.shift();
+    }
+    stormChart.data.labels.push(now);
+    stormChart.data.datasets[0].data.push(val);
+    stormChart.update();
+
+    // Log ke Table
+    if (val < 40) addLogRow(val);
 }
 
-function addRow(val) {
-    const table = document.querySelector('#logs-table tbody');
-    const row = table.insertRow(0);
-    row.innerHTML = `
-        <td style="color:${val <= 10 ? '#ff4757' : '#00f2ff'}">${val <= 10 ? 'CRITICAL' : 'NORMAL'}</td>
+function addLogRow(val) {
+    const tbody = document.getElementById('log-body');
+    const row = `<tr>
+        <td style="color: ${val <= 10 ? '#ff3366' : '#00ff88'}">${val <= 10 ? 'CRITICAL' : 'NORMAL'}</td>
         <td>${new Date().toLocaleTimeString()}</td>
         <td>${val} KM</td>
-    `;
-    if (table.rows.length > 5) table.deleteRow(5);
+    </tr>`;
+    tbody.insertAdjacentHTML('afterbegin', row);
+    if (tbody.rows.length > 8) tbody.deleteRow(8);
 }
 
-function initChart() {
-    const ctx = document.getElementById('liveTimeline').getContext('2d');
-    liveChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                data: [],
-                borderColor: '#00f2ff',
-                tension: 0.4,
-                fill: true,
-                backgroundColor: 'rgba(0, 242, 255, 0.05)',
-                pointRadius: 0
-            }]
+// Inisialisasi Graf (Neon Wave Style)
+const ctx = document.getElementById('stormChart').getContext('2d');
+stormChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Proximity',
+            data: [],
+            borderColor: '#00d2ff',
+            borderWidth: 3,
+            pointRadius: 0,
+            tension: 0.4, // Buat garisan berombak (wave)
+            fill: true,
+            backgroundColor: (context) => {
+                const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 300);
+                gradient.addColorStop(0, 'rgba(0, 210, 255, 0.3)');
+                gradient.addColorStop(1, 'rgba(0, 210, 255, 0)');
+                return gradient;
+            }
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { beginAtZero: true, max: 40, grid: { color: 'rgba(255,255,255,0.05)' } },
+            x: { display: false }
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true, max: 40, grid: { color: 'rgba(255,255,255,0.05)' } },
-                x: { display: false }
-            },
-            plugins: { legend: { display: false } }
-        }
-    });
-}
-
-function updateChart(val) {
-    const time = new Date().toLocaleTimeString();
-    if (liveChart.data.labels.length > 15) {
-        liveChart.data.labels.shift();
-        liveChart.data.datasets[0].data.shift();
+        plugins: { legend: { display: false } }
     }
-    liveChart.data.labels.push(time);
-    liveChart.data.datasets[0].data.push(val);
-    liveChart.update();
-}
+});
 
-function setupNavigation() {
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-            item.classList.add('active');
-            document.getElementById(item.dataset.page).classList.add('active');
-            if (window.innerWidth <= 900) toggleSidebar(); // Tutup menu lepas klik (Mobile)
-        });
-    });
-}
-
-function initClock() {
-    setInterval(() => {
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-    }, 1000);
-}
-
-function triggerFlash() {
-    const f = document.getElementById('flash-effect');
-    f.classList.add('strike');
-    setTimeout(() => f.classList.remove('strike'), 300);
-}
+setInterval(syncData, 2000);
