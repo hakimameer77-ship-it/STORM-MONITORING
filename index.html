@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StormWatch | PSM IoT Dashboard</title>
+    <title>StormWatch | IoT Lightning Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -57,27 +57,45 @@
 
             <section id="home" class="main-section active">
                 <div class="hero-box">
-                    <span class="badge">UTHM Pagoh Project</span>
-                    <h1>Lightning Warning System</h1>
-                    <p>Real-time atmospheric monitoring for campus safety.</p>
+                    <span class="badge">PSM | UTHM Pagoh</span>
+                    <h1>StormWatch IoT</h1>
+                    <p>An intelligent lightning detection system utilizing the AS3935 Franklin sensor and ESP32 for campus-wide early warnings.</p>
                     <button class="primary-btn" onclick="navigateTo('dashboard')">Launch Dashboard</button>
                 </div>
 
-                <div class="info-grid">
-                    <div class="glass-card full-width">
-                        <h3><i class="fa-solid fa-diagram-project"></i> System Architecture</h3>
-                        <div class="flow-container">
-                            <div class="flow-item"><span>1</span> Sensing (AS3935)</div>
-                            <div class="flow-item"><span>2</span> Processing (ESP32)</div>
-                            <div class="flow-item"><span>3</span> Cloud (Blynk)</div>
-                            <div class="flow-item"><span>4</span> UI (Dashboard)</div>
+                <div class="architecture-box">
+                    <h2 class="section-title">System Architecture</h2>
+                    <div class="arch-grid">
+                        <div class="arch-card">
+                            <div class="step-num">1</div>
+                            <i class="fa-solid fa-bolt"></i>
+                            <h3>Sensing</h3>
+                            <p>AS3935 detects electromagnetic pulses from lightning up to 40km away.</p>
+                        </div>
+                        <div class="arch-card">
+                            <div class="step-num">2</div>
+                            <i class="fa-solid fa-microchip"></i>
+                            <h3>Processing</h3>
+                            <p>ESP32 filters background noise (disturbers) and calculates storm distance.</p>
+                        </div>
+                        <div class="arch-card">
+                            <div class="step-num">3</div>
+                            <i class="fa-solid fa-cloud"></i>
+                            <h3>Cloud</h3>
+                            <p>Blynk IoT Cloud acts as the bridge, receiving telemetry via secured Wi-Fi.</p>
+                        </div>
+                        <div class="arch-card">
+                            <div class="step-num">4</div>
+                            <i class="fa-solid fa-display"></i>
+                            <h3>Interface</h3>
+                            <p>Web dashboard hosted on GitHub visualizes real-time data and logs events.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
             <section id="dashboard" class="main-section">
-                <div id="status-banner">CONNECTING TO CLOUD...</div>
+                <div id="status-banner">WAITING FOR DATA...</div>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <span class="label">Proximity</span>
@@ -85,9 +103,9 @@
                         <div class="progress-container"><div id="intensity-fill"></div></div>
                     </div>
                     <div class="stat-card">
-                        <span class="label">Intensity</span>
+                        <span class="label">RF Intensity</span>
                         <h2 id="live-intensity">0%</h2>
-                        <p>RF Activity</p>
+                        <p>Electrostatic Level</p>
                     </div>
                 </div>
                 <div class="graph-card">
@@ -105,7 +123,7 @@
                 <div class="table-wrapper">
                     <table>
                         <thead>
-                            <tr><th>Time</th><th>Dist</th><th>Status</th></tr>
+                            <tr><th>Timestamp</th><th>Distance</th><th>Status</th></tr>
                         </thead>
                         <tbody id="history-body"></tbody>
                     </table>
@@ -115,7 +133,7 @@
             <section id="analytics" class="main-section">
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <span class="label">Total Events</span>
+                        <span class="label">Total Strikes</span>
                         <h2 id="total-strikes">0</h2>
                     </div>
                     <div class="stat-card">
@@ -124,6 +142,7 @@
                     </div>
                 </div>
                 <div class="graph-card pie-box">
+                    <h3>Severity Distribution</h3>
                     <div class="pie-container">
                         <canvas id="pieChart"></canvas>
                     </div>
