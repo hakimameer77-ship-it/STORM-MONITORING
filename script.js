@@ -1,63 +1,51 @@
 const BLYNK_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd";
 let stormChart;
 
-// Tukar Halaman
-function switchPage(pageId) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    
-    document.getElementById(pageId).classList.add('active');
-    event.currentTarget.classList.add('active');
-    
-    document.getElementById('title-display').innerText = pageId.charAt(0).toUpperCase() + pageId.slice(1);
-}
-
-// Jam Digital
+// Digital Clock
 setInterval(() => {
     document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-GB');
 }, 1000);
 
-// Sync Blynk
+// Sync Data from Blynk
 async function syncData() {
     try {
         const response = await fetch(`https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&V1`);
         if (response.ok) {
             const data = await response.json();
-            
-            // LOGIK: Hanya update jika blynk hantar data (bukan null)
+            // Logic: Only process if data is active/not null
             if (data !== null && data !== undefined) {
-                updateDashboard(data);
-                updateStatus(true);
+                updateUI(data);
+                toggleConnection(true);
             }
         } else {
-            updateStatus(false);
+            toggleConnection(false);
         }
     } catch (e) {
-        updateStatus(false);
+        toggleConnection(false);
     }
 }
 
-function updateStatus(active) {
+function toggleConnection(isActive) {
     const dot = document.getElementById('status-dot');
     const text = document.getElementById('status-text');
-    dot.className = active ? 'dot-green' : 'dot-red';
-    text.innerText = active ? 'ONLINE' : 'OFFLINE';
+    dot.className = isActive ? 'dot-green' : 'dot-red';
+    text.innerText = isActive ? 'ONLINE' : 'OFFLINE';
 }
 
-function updateDashboard(val) {
+function updateUI(val) {
     document.getElementById('dist-val').innerText = val;
     const pill = document.getElementById('alert-pill');
     
     if (val <= 10) {
-        pill.innerText = "DANGER: STRIKE WITHIN 10KM!";
+        pill.innerText = "DANGER: IMMEDIATE THREAT!";
         pill.className = "pill-danger";
     } else {
         pill.innerText = "STATUS: SAFE (NO THREAT)";
         pill.className = "pill-safe";
     }
 
-    // Update Graf
-    const now = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    // Chart Update
+    const now = new Date().toLocaleTimeString('en-GB');
     if (stormChart.data.labels.length > 15) {
         stormChart.data.labels.shift();
         stormChart.data.datasets[0].data.shift();
@@ -66,41 +54,33 @@ function updateDashboard(val) {
     stormChart.data.datasets[0].data.push(val);
     stormChart.update();
 
-    // Log ke Table
-    if (val < 40) addLogRow(val);
+    // Table Update
+    if (val < 40) {
+        const tbody = document.getElementById('log-body');
+        const row = `<tr>
+            <td style="color: ${val <= 10 ? '#ff3366' : '#00ff88'}">${val <= 10 ? 'DANGER' : 'NORMAL'}</td>
+            <td>${now}</td>
+            <td>${val} KM</td>
+        </tr>`;
+        tbody.insertAdjacentHTML('afterbegin', row);
+        if (tbody.rows.length > 10) tbody.deleteRow(10);
+    }
 }
 
-function addLogRow(val) {
-    const tbody = document.getElementById('log-body');
-    const row = `<tr>
-        <td style="color: ${val <= 10 ? '#ff3366' : '#00ff88'}">${val <= 10 ? 'CRITICAL' : 'NORMAL'}</td>
-        <td>${new Date().toLocaleTimeString()}</td>
-        <td>${val} KM</td>
-    </tr>`;
-    tbody.insertAdjacentHTML('afterbegin', row);
-    if (tbody.rows.length > 8) tbody.deleteRow(8);
-}
-
-// Inisialisasi Graf (Neon Wave Style)
+// Chart Initializer
 const ctx = document.getElementById('stormChart').getContext('2d');
 stormChart = new Chart(ctx, {
     type: 'line',
     data: {
         labels: [],
         datasets: [{
-            label: 'Proximity',
             data: [],
             borderColor: '#00d2ff',
             borderWidth: 3,
             pointRadius: 0,
-            tension: 0.4, // Buat garisan berombak (wave)
+            tension: 0.4,
             fill: true,
-            backgroundColor: (context) => {
-                const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 300);
-                gradient.addColorStop(0, 'rgba(0, 210, 255, 0.3)');
-                gradient.addColorStop(1, 'rgba(0, 210, 255, 0)');
-                return gradient;
-            }
+            backgroundColor: 'rgba(0, 210, 255, 0.05)'
         }]
     },
     options: {
@@ -114,4 +94,9 @@ stormChart = new Chart(ctx, {
     }
 });
 
+function exportCSV() {
+    alert("Generating CSV report for UTHM Pagoh Hub...");
+}
+
+// Start Syncing
 setInterval(syncData, 2000);
