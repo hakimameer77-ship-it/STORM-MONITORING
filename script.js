@@ -1,23 +1,33 @@
 const CONFIG = {
     TOKEN: "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd",
-    URL: "https://blynk.cloud/external/api/getAll?token=",
+    // This proxy is essential to prevent CORS errors in the browser
+    BASE_URL: "https://corsproxy.io/?https://blynk.cloud/external/api/getAll?token=",
     INTERVAL: 3000,
-    DANGER: 10, WARNING: 25
+    DANGER: 10,
+    WARNING: 25
 };
 
 let liveChart, pieChart;
 let historyLog = JSON.parse(localStorage.getItem('storm_history')) || [];
 
-// 1. Navigation
+// Sidebar Toggle Logic
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
 }
 
+// Navigation Logic
 function navigateTo(targetId) {
     document.querySelectorAll('.nav-item, .main-section').forEach(el => el.classList.remove('active'));
-    document.querySelector(`[data-target="${targetId}"]`).classList.add('active');
+    
+    const navItem = document.querySelector(`[data-target="${targetId}"]`);
+    if(navItem) navItem.classList.add('active');
+    
     document.getElementById(targetId).classList.add('active');
-    if (window.innerWidth <= 850) toggleSidebar();
+    
+    if (window.innerWidth <= 850) {
+        document.getElementById('sidebar').classList.remove('open');
+    }
+    
     if (targetId === 'analytics') renderAnalytics();
 }
 
@@ -25,7 +35,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => navigateTo(item.dataset.target));
 });
 
-// 2. Charts
+// Initialize Charts
 function initCharts() {
     const ctxL = document.getElementById('liveChart').getContext('2d');
     liveChart = new Chart(ctxL, {
@@ -42,38 +52,56 @@ function initCharts() {
     });
 }
 
-// 3. Data Engine
+// Fetch Data from Blynk
 async function fetchData() {
     try {
-        const res = await fetch(`${CONFIG.URL}${CONFIG.TOKEN}`);
-        const data = await res.json();
+        const response = await fetch(`${CONFIG.BASE_URL}${CONFIG.TOKEN}`);
+        const data = await response.json();
+        
+        // V1 = Distance, V2 = Intensity
         const dist = parseInt(data.V1) || 0;
         const intens = parseInt(data.V2) || 0;
-        updateDashboard(dist, intens);
-        setOnline(true);
-    } catch (e) { setOnline(false); }
+        
+        updateUI(dist, intens);
+        updateStatus(true);
+    } catch (error) {
+        console.error("Blynk Fetch Error:", error);
+        updateStatus(false);
+    }
 }
 
-function updateDashboard(dist, intens) {
+function updateUI(dist, intens) {
     const time = new Date().toLocaleTimeString('en-GB');
-    document.getElementById('live-distance').innerText = `${dist} KM`;
+    document.getElementById('live-distance').innerText = dist > 0 ? `${dist} KM` : "CLEAR";
     document.getElementById('live-intensity').innerText = `${intens}%`;
     document.getElementById('myt-clock').innerText = time;
 
     let level = "SAFE", color = "var(--safe)";
-    if (dist > 0 && dist <= CONFIG.DANGER) { level = "CRITICAL"; color = "var(--danger)"; triggerFlash(); }
-    else if (dist > 0 && dist <= CONFIG.WARNING) { level = "WARNING"; color = "var(--warning)"; }
+    if (dist > 0 && dist <= CONFIG.DANGER) {
+        level = "CRITICAL"; color = "var(--danger)";
+        triggerFlash();
+    } else if (dist > 0 && dist <= CONFIG.WARNING) {
+        level = "WARNING"; color = "var(--warning)";
+    }
 
     const banner = document.getElementById('status-banner');
-    banner.innerText = `STATUS: ${level}`; banner.style.color = color; banner.style.borderColor = color;
+    banner.innerText = `SYSTEM STATUS: ${level}`;
+    banner.style.color = color;
+    banner.style.borderColor = color;
+
     document.getElementById('intensity-fill').style.width = `${dist > 0 ? ((40-dist)/40)*100 : 0}%`;
     document.getElementById('intensity-fill').style.background = color;
 
-    // Graph
-    if(liveChart.data.labels.length > 15) { liveChart.data.labels.shift(); liveChart.data.datasets[0].data.shift(); }
-    liveChart.data.labels.push(time); liveChart.data.datasets[0].data.push(dist); liveChart.update();
+    // Update Live Graph
+    if(liveChart.data.labels.length > 10) {
+        liveChart.data.labels.shift();
+        liveChart.data.datasets[0].data.shift();
+    }
+    liveChart.data.labels.push(time);
+    liveChart.data.datasets[0].data.push(dist);
+    liveChart.update();
 
-    // History Log
+    // Log History
     if (dist > 0) {
         historyLog.unshift({ time, dist, level });
         if(historyLog.length > 50) historyLog.pop();
@@ -84,7 +112,13 @@ function updateDashboard(dist, intens) {
 
 function renderHistory() {
     const tbody = document.getElementById('history-body');
-    tbody.innerHTML = historyLog.slice(0, 10).map(i => `<tr><td>${i.time}</td><td>${i.dist} KM</td><td style="color:${i.level === 'CRITICAL' ? 'var(--danger)' : 'var(--warning)'}">${i.level}</td></tr>`).join('');
+    tbody.innerHTML = historyLog.slice(0, 10).map(i => `
+        <tr>
+            <td>${i.time}</td>
+            <td>${i.dist} KM</td>
+            <td style="color:${i.level === 'CRITICAL' ? 'var(--danger)' : 'var(--warning)'}">${i.level}</td>
+        </tr>
+    `).join('');
 }
 
 function renderAnalytics() {
@@ -92,21 +126,23 @@ function renderAnalytics() {
     const avg = total > 0 ? (historyLog.reduce((a, c) => a + c.dist, 0) / total).toFixed(1) : 0;
     document.getElementById('total-strikes').innerText = total;
     document.getElementById('avg-dist').innerText = `${avg} KM`;
-    const c = { CRITICAL: 0, WARNING: 0, SAFE: 0 };
-    historyLog.forEach(i => { if(c[i.level] !== undefined) c[i.level]++; else c.SAFE++; });
-    pieChart.data.datasets[0].data = [c.CRITICAL, c.WARNING, c.SAFE];
+
+    const counts = { CRITICAL: 0, WARNING: 0, SAFE: 0 };
+    historyLog.forEach(i => { if(counts[i.level] !== undefined) counts[i.level]++; });
+    
+    pieChart.data.datasets[0].data = [counts.CRITICAL, counts.WARNING, total - (counts.CRITICAL + counts.WARNING)];
     pieChart.update();
 }
 
-function setOnline(o) {
-    document.getElementById('status-dot').style.background = o ? "#00ff88" : "var(--danger)";
-    document.getElementById('esp-status').innerText = o ? "ONLINE" : "OFFLINE";
+function updateStatus(online) {
+    document.getElementById('status-dot').style.background = online ? "#00ff88" : "var(--danger)";
+    document.getElementById('esp-status').innerText = online ? "ONLINE" : "OFFLINE";
 }
 
 function triggerFlash() {
-    const f = document.getElementById('flash-effect');
-    f.classList.add('strike-anim');
-    setTimeout(() => f.classList.remove('strike-anim'), 400);
+    const flash = document.getElementById('flash-effect');
+    flash.classList.add('strike-anim');
+    setTimeout(() => flash.classList.remove('strike-anim'), 300);
 }
 
 function downloadCSV() {
@@ -114,7 +150,11 @@ function downloadCSV() {
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'StormWatch_Log.csv'; a.click();
+    a.href = url; a.download = 'StormWatch_History.csv'; a.click();
 }
 
-window.onload = () => { initCharts(); renderHistory(); setInterval(fetchData, CONFIG.INTERVAL); };
+window.onload = () => {
+    initCharts();
+    renderHistory();
+    setInterval(fetchData, CONFIG.INTERVAL);
+};
