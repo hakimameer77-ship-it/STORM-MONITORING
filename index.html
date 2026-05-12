@@ -1,182 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ms">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StormWatch Pro | UTHM Pagoh Hub</title>
+    <title>StormWatch Pro | Mobile Responsive</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="flash-overlay" class="flash-overlay"></div>
-    <div class="sidebar-overlay" onclick="toggleMobileMenu()"></div>
+    <div id="flash-effect" class="flash-overlay"></div>
+    
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-top">
-                <div class="logo">
-                    <i class="fa-solid fa-bolt-lightning"></i>
-                    <span>StormWatch</span>
-                </div>
-                <p class="nav-label">MAIN NAVIGATION</p>
-                <nav class="menu">
-                    <div class="menu-item active" data-target="overview"><i class="fa-solid fa-house"></i> System Overview</div>
-                    <div class="menu-item" data-target="live"><i class="fa-solid fa-chart-line"></i> Live Dashboard</div>
-                    <div class="menu-item" data-target="history"><i class="fa-solid fa-clock-rotate-left"></i> Alert History</div>
-                    <div class="menu-item" data-target="analytics"><i class="fa-solid fa-magnifying-glass-chart"></i> Data Analytics</div>
-                </nav>
+    <div class="app-wrapper">
+        <aside class="cyber-sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="neon-logo"><i class="fa-solid fa-bolt-lightning"></i> STORM<span>WATCH</span></div>
+                <button class="close-sidebar" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            
-            <div class="sidebar-bottom">
-                <div class="blynk-status">
-                    <div class="blynk-info">
-                        <i class="fa-solid fa-server"></i>
-                        <div>
-                            <p class="b-title">Blynk Cloud</p>
-                            <p class="b-state" id="cloud-status">Connected</p>
-                        </div>
-                    </div>
-                    <div class="status-dot green"></div>
+
+            <nav class="nav-links">
+                <div class="nav-item active" data-page="dashboard"><i class="fa-solid fa-gauge-high"></i> Dashboard</div>
+                <div class="nav-item" data-page="history"><i class="fa-solid fa-list-ul"></i> Log Sejarah</div>
+                <div class="nav-item" data-page="analytics"><i class="fa-solid fa-microchip"></i> Sistem IoT</div>
+            </nav>
+
+            <div class="sidebar-status-card">
+                <div class="status-header">
+                    <span>BLYNK NODE</span>
+                    <span id="connection-dot" class="dot-offline"></span>
                 </div>
-                <button class="reset-btn" onclick="resetLogs()"><i class="fa-solid fa-trash-can"></i> Reset Data Logs</button>
+                <h4 id="connection-status">DISCONNECTED</h4>
+                <p id="last-sync">No Active Data</p>
             </div>
         </aside>
 
-        <main class="main-area">
-            <header class="top-header">
-                <div class="header-left">
-                    <button class="mobile-toggle" onclick="toggleMobileMenu()">
+        <main class="main-content">
+            <header class="top-nav">
+                <div class="nav-left">
+                    <button class="menu-toggle" onclick="toggleSidebar()">
                         <i class="fa-solid fa-bars-staggered"></i>
                     </button>
-                    <div class="system-msg" id="top-banner">
-                        <span class="status-badge safe">SAFE: Conditions normal</span>
+                    <div class="search-info">
+                        <h1>Storm Monitoring</h1>
+                        <p>UTHM Pagoh Hub</p>
                     </div>
                 </div>
-                <div class="clock" id="digital-clock">00:00:00</div>
+                <div class="live-clock" id="clock">00:00:00</div>
             </header>
 
-            <div class="content-body">
-                <section id="overview" class="page active">
-                    <h1 class="page-title">Command Center</h1>
-                    <p class="subtitle">Welcome to the UTHM Pagoh Early Warning Lightning Detection System.</p>
+            <div class="content-container">
+                <section id="dashboard" class="page-section active">
+                    <div class="alert-banner" id="system-banner">WAITING FOR BLYNK...</div>
 
-                    <div class="hero-card">
-                        <div class="hero-content">
-                            <span class="badge-blue">PROJECT DASHBOARD</span>
-                            <h2>UTHM Pagoh Storm Monitoring</h2>
-                            <p>REAL-TIME LIGHTNING DETECTION SYSTEM POWERED BY IOT FOR CAMPUS EARLY WARNING.</p>
+                    <div class="main-stats-grid">
+                        <div class="glass-card main-val-card">
+                            <span class="card-label">JARAK PROXIMITY</span>
+                            <div class="value-display">
+                                <h2 id="dist-val">--</h2>
+                                <span class="unit">KM</span>
+                            </div>
+                            <div class="cyber-progress">
+                                <div id="dist-bar" class="bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="location-card glass-card">
+                            <span class="card-label">LOKASI NODE</span>
+                            <h3>Pagoh Hub</h3>
+                            <div class="status-pill active">Online</div>
                         </div>
                     </div>
 
-                    <div class="layer-grid">
-                        <div class="layer-card">
-                            <div class="icon-box"><i class="fa-solid fa-microchip"></i></div>
-                            <div>
-                                <h4>Sensing Layer</h4>
-                                <p>AS3935 Sensor & ESP32 Node</p>
-                            </div>
+                    <div class="chart-section glass-card">
+                        <div class="chart-header">
+                            <h3>Live Matrix</h3>
+                            <button onclick="exportCSV()" class="btn-neon">CSV</button>
                         </div>
-                        <div class="layer-card">
-                            <div class="icon-box"><i class="fa-solid fa-tower-broadcast"></i></div>
-                            <div>
-                                <h4>Transmission Layer</h4>
-                                <p>Blynk Cloud API (HTTPS)</p>
-                            </div>
-                        </div>
-                        <div class="layer-card">
-                            <div class="icon-box"><i class="fa-solid fa-display"></i></div>
-                            <div>
-                                <h4>Application Layer</h4>
-                                <p>Live Dashboard & CSV Export</p>
-                            </div>
+                        <div class="chart-container">
+                            <canvas id="liveTimeline"></canvas>
                         </div>
                     </div>
                 </section>
 
-                <section id="live" class="page">
-                    <div class="section-header">
-                        <div>
-                            <h1 class="page-title">Live Telemetry</h1>
-                            <p class="subtitle">Real-time lightning distance monitoring</p>
-                        </div>
-                        <div class="live-sync-badge"><span class="dot-pulse"></span> Live Syncing</div>
-                    </div>
-
-                    <div class="proximity-card card shadow">
-                        <p class="label-sm">Current Storm Proximity (Radius)</p>
-                        <h2 class="massive-val" id="live-dist">-- KM</h2>
-                        <p class="status-txt" id="live-status">SAFE: Conditions normal</p>
-                    </div>
-
-                    <div class="card shadow">
-                        <h3 class="card-title">Real-time Tracking Matrix</h3>
-                        <div class="chart-wrapper">
-                            <canvas id="liveChart"></canvas>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="history" class="page">
-                    <div class="section-header-flex">
-                        <div>
-                            <h1 class="page-title">System Event Logs</h1>
-                            <p class="subtitle">Historical archive of detection events</p>
-                        </div>
-                        <button class="export-btn" onclick="exportCSV()"><i class="fa-solid fa-file-csv"></i> Export Report</button>
-                    </div>
-
-                    <div class="mini-stats-grid">
-                        <div class="mini-card border-red">
-                            <div class="m-icon red"><i class="fa-solid fa-circle-exclamation"></i></div>
-                            <div><p class="m-label">Critical</p><p class="m-val" id="count-danger">0</p></div>
-                        </div>
-                        <div class="mini-card border-yellow">
-                            <div class="m-icon yellow"><i class="fa-solid fa-bolt"></i></div>
-                            <div><p class="m-label">Warning</p><p class="m-val" id="count-warning">0</p></div>
-                        </div>
-                        <div class="mini-card border-green">
-                            <div class="m-icon green"><i class="fa-solid fa-check"></i></div>
-                            <div><p class="m-label">Safe</p><p class="m-val" id="count-safe">0</p></div>
-                        </div>
-                    </div>
-
-                    <div class="table-outer shadow">
-                        <table id="logs-table">
-                            <thead>
-                                <tr>
-                                    <th>SEVERITY</th>
-                                    <th>DATE</th>
-                                    <th>TIME</th>
-                                    <th>PROXIMITY</th>
-                                    <th>CLASSIFICATION</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <section id="analytics" class="page">
-                    <h1 class="page-title">Analytics Hub</h1>
-                    <p class="subtitle">System metrics & visualization</p>
-
-                    <div class="analytics-top-row">
-                        <div class="stat-box"><p>TOTAL EVENTS</p><h3 id="total-logs">0</h3></div>
-                        <div class="stat-box"><p>AVG DISTANCE</p><h3 id="avg-prox">-- KM</h3></div>
-                        <div class="stat-box"><p>PEAK STATUS</p><h3>Normal</h3></div>
-                        <div class="stat-box"><p>IOT NODE</p><h3>Online</h3></div>
-                    </div>
-
-                    <div class="analytics-main-grid">
-                        <div class="card shadow">
-                            <h3 class="card-title">Detection Trends</h3>
-                            <div class="chart-wrapper"><canvas id="trendChart"></canvas></div>
-                        </div>
-                        <div class="card shadow">
-                            <h3 class="card-title">Severity Ratio</h3>
-                            <div class="chart-wrapper"><canvas id="pieChart"></canvas></div>
+                <section id="history" class="page-section">
+                    <div class="glass-card table-card">
+                        <h3>Event Logs</h3>
+                        <div class="table-scroll">
+                            <table id="logs-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tahap</th>
+                                        <th>Masa</th>
+                                        <th>Jarak</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
                     </div>
                 </section>
