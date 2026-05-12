@@ -3,70 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StormWatch | IoT Lightning Monitor</title>
-    <link rel="stylesheet" href="style.css">
+    <title>StormWatch Pro | UTHM Pagoh IoT</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div id="flash-effect" class="flash-overlay"></div>
 
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo">STORM<span>WATCH</span></div>
-            <ul class="nav-links">
-                <li class="nav-item active" data-target="dashboard">Dashboard</li>
-                <li class="nav-item" data-target="info">System Info</li>
-            </ul>
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-brand">
+            <div class="logo"><i class="fa-solid fa-bolt-lightning"></i> STORM<span>WATCH</span></div>
+            <i class="fa-solid fa-bars-staggered close-sidebar" onclick="toggleSidebar()"></i>
         </div>
-    </nav>
+        
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="nav-item active" data-target="dashboard" onclick="switchSection(this)">
+                    <i class="fa-solid fa-house"></i> <span>Home Dashboard</span>
+                </li>
+                <li class="nav-item" data-target="analytics" onclick="switchSection(this)">
+                    <i class="fa-solid fa-chart-pie"></i> <span>Advanced Analytics</span>
+                </li>
+                <li class="nav-item" data-target="history" onclick="switchSection(this)">
+                    <i class="fa-solid fa-clock-rotate-left"></i> <span>Alert History</span>
+                </li>
+                <li class="nav-item" data-target="architecture" onclick="switchSection(this)">
+                    <i class="fa-solid fa-layer-group"></i> <span>Architecture</span>
+                </li>
+            </ul>
+        </nav>
 
-    <div class="content-wrapper">
-        <section id="dashboard" class="main-section active">
-            <div id="status-banner" class="status-safe">SYSTEM INITIALIZING...</div>
+        <div class="sidebar-footer">
+            <p>v2.1.0-Stable</p>
+            <p>UTHM Pagoh Campus</p>
+        </div>
+    </aside>
 
-            <div class="stat-grid">
-                <div class="stat-card">
-                    <span class="label"><i class="fa-solid fa-cloud-bolt"></i> STORM DISTANCE</span>
-                    <h2 id="distance-val">--</h2>
-                    <span class="unit">KILOMETERS</span>
+    <main class="main-content">
+        <header class="top-nav">
+            <div class="nav-left">
+                <button class="menu-btn" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </button>
+                <h1 id="page-title">Live Dashboard</h1>
+            </div>
+            <div class="nav-right">
+                <div class="status-pill">
+                    <span class="dot pulse"></span> LIVE: <span id="clock">00:00:00</span>
                 </div>
+            </div>
+        </header>
 
-                <div class="stat-card">
-                    <span class="label"><i class="fa-solid fa-triangle-exclamation"></i> ALERT LEVEL</span>
-                    <h2 id="alert-text">SCANNING</h2>
-                    <div class="status-indicator">
-                        <span id="status-dot" class="dot"></span>
-                        <span id="connection-status">CONNECTING TO BLYNK...</span>
+        <section id="dashboard" class="content-section active">
+            <div id="alert-banner" class="banner-safe">SYSTEM MONITORING ACTIVE</div>
+
+            <div class="grid-layout">
+                <div class="glass-card stat-main">
+                    <span class="label">STORM PROXIMITY</span>
+                    <div class="value-group">
+                        <h2 id="dist-val">--</h2>
+                        <span class="unit">KM</span>
+                    </div>
+                    <div class="progress-container">
+                        <div id="dist-bar" class="progress-bar" style="width: 0%"></div>
                     </div>
                 </div>
+
+                <div class="glass-card location-info">
+                    <span class="label">MONITORING HUB</span>
+                    <h3>UTHM Pagoh Campus</h3>
+                    <p class="coords"><i class="fa-solid fa-location-dot"></i> 2.1481° N, 102.7303° E</p>
+                    <div class="badge">Active Node</div>
+                </div>
             </div>
 
-            <div class="chart-box">
-                <h3 class="chart-title">DISTANCE TREND (KM vs TIME)</h3>
-                <div class="chart-container">
-                    <canvas id="stormChart"></canvas>
+            <div class="glass-card chart-full">
+                <div class="card-header">
+                    <h3>Real-time Intensity Trend</h3>
+                    <button class="btn-excel" onclick="exportData()">
+                        <i class="fa-solid fa-file-export"></i> EXCEL EXPORT
+                    </button>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="liveChart"></canvas>
                 </div>
             </div>
         </section>
 
-        <section id="info" class="main-section">
+        <section id="analytics" class="content-section">
+            <div class="analytics-controls">
+                <h2>Lightning Frequency</h2>
+                <div class="filter-tabs">
+                    <button class="tab-btn active" onclick="updateAnalytics('day')">Day</button>
+                    <button class="tab-btn" onclick="updateAnalytics('week')">Week</button>
+                    <button class="tab-btn" onclick="updateAnalytics('month')">Month</button>
+                    <button class="tab-btn" onclick="updateAnalytics('year')">Year</button>
+                </div>
+            </div>
             <div class="glass-card">
-                <h3><i class="fa-solid fa-microchip"></i> Hardware Configuration</h3>
-                <p><strong>Controller:</strong> ESP32 DevKit V1</p>
-                <p><strong>Sensor:</strong> AS3935 Franklin Lightning Sensor</p>
-                <p><strong>Display:</strong> ILI9341 TFT LCD</p>
-                <hr>
-                <p><strong>Project Lead:</strong> Ameer Hakim</p>
-                <p><strong>Matric No:</strong> CN230083</p>
+                <div class="chart-wrapper" style="height: 400px;">
+                    <canvas id="analyticsChart"></canvas>
+                </div>
             </div>
         </section>
-    </div>
 
-    <footer class="main-footer">
-        <p>&copy; 2026 StormWatch Project | UTHM Pagoh IoT</p>
-    </footer>
+        <section id="architecture" class="content-section">
+            <div class="glass-card">
+                <h2>Project Architecture</h2>
+                <p>This system utilizes the <strong>AS3935 Franklin Sensor</strong> to detect electromagnetic pulses from lightning strikes up to 40km away.</p>
+                <div class="tech-stack">
+                    <span>ESP32</span>
+                    <span>Blynk IoT Cloud</span>
+                    <span>JavaScript ES6</span>
+                    <span>Chart.js</span>
+                </div>
+                <hr>
+                <p><strong>Lead Engineer:</strong> Ameer Hakim</p>
+                <p><strong>Matric Number:</strong> CN230083</p>
+            </div>
+        </section>
+    </main>
 
     <script src="script.js"></script>
 </body>
