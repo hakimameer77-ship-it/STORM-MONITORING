@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StormWatch | UTHM Pagoh IoT</title>
-    
-    <!-- Libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,7 +11,6 @@
 </head>
 <body>
 
-    <!-- Background Effects -->
     <div class="lightning-bg"></div>
     <div id="flash-effect" class="flash-overlay"></div>
 
@@ -25,110 +22,85 @@
             </div>
             <ul id="nav-links" class="nav-links">
                 <li class="nav-item active" data-target="home">Home</li>
-                <li class="nav-item" data-target="project">Dashboard</li>
-                <li class="nav-item" data-target="architecture">Architecture</li>
+                <li class="nav-item" data-target="dashboard">Live Dashboard</li>
+                <li class="nav-item" data-target="history">Alert History</li>
+                <li class="nav-item" data-target="analytics">Analytics</li>
             </ul>
         </div>
     </nav>
 
     <div class="content-wrapper">
         
-        <!-- SECTION: HOME -->
         <section id="home" class="main-section active">
             <div class="hero-box">
-                <span class="section-tag">Safety Innovation</span>
-                <h1>UTHM Pagoh Monitoring</h1>
-                <p>Real-time lightning detection powered by IoT for campus-wide early warning.</p>
-                <button class="excel-btn" onclick="document.querySelector('[data-target=project]').click()" style="margin-top:20px; border:none; cursor:pointer;">
-                    Launch Dashboard
-                </button>
+                <span class="section-tag">Smart Campus Safety</span>
+                <h1>StormWatch IoT</h1>
+                <p>Sistem amaran awal kilat masa-nyata untuk warga UTHM Kampus Pagoh menggunakan sensor AS3935 dan integrasi Cloud.</p>
+                <button class="launch-btn" onclick="navigateTo('dashboard')">Buka Dashboard</button>
             </div>
         </section>
 
-        <!-- SECTION: DASHBOARD -->
-        <section id="project" class="main-section">
-            <div id="status-banner" class="pulse">WAITING FOR DATA...</div>
-
-            <div class="stat-grid-mobile">
-                <!-- Proximity & Intensity -->
+        <section id="dashboard" class="main-section">
+            <div id="status-banner">SISTEM SEDANG MEMULAKAN...</div>
+            <div class="stat-grid">
                 <div class="stat-card">
-                    <span class="label">STORM PROXIMITY</span>
-                    <h2 id="storm-distance">-- KM</h2>
-                    <div class="intensity-bar">
-                        <div id="intensity-fill" style="width: 0%"></div>
-                    </div>
-                    <p id="intensity-text">Scanning Atmosphere...</p>
+                    <span class="label">JARAK RIBUT</span>
+                    <h2 id="live-distance">-- KM</h2>
+                    <div class="intensity-bar"><div id="intensity-fill"></div></div>
                 </div>
-
-                <!-- System Status -->
                 <div class="stat-card">
-                    <span class="label">SYSTEM STATUS</span>
+                    <span class="label">STATUS SISTEM</span>
                     <div class="status-flex">
                         <span id="status-dot" class="dot"></span>
                         <span id="esp-status">OFFLINE</span>
                     </div>
-                    <p id="myt-clock" style="color: #aaa; font-size: 0.8rem; margin-top:10px;">--:--:--</p>
+                    <p id="myt-clock">--:--:--</p>
                 </div>
             </div>
-
-            <!-- Location Info -->
-            <div class="glass-card location-card">
-                <h3><i class="fa-solid fa-location-dot"></i> Live Deployment</h3>
-                <div class="loc-details">
-                    <p><strong>Campus:</strong> UTHM Pagoh, Johor</p>
-                    <p><strong>Coordinates:</strong> 2.1481° N, 102.7303° E</p>
-                </div>
-            </div>
-
-            <!-- Analytics Graph -->
             <div class="chart-box">
-                <h3 style="margin-bottom: 15px; font-size: 1rem; color: var(--primary);">REAL-TIME INTENSITY GRAPH</h3>
-                <div class="chart-container">
-                    <canvas id="lightningChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Excel Folder Link -->
-            <div class="excel-section">
-                <p style="font-size: 0.8rem; color: #888; margin-bottom: 10px;">HISTORICAL DATA FOLDER</p>
-                <a href="YOUR_GOOGLE_SHEET_URL" target="_blank" class="excel-btn">
-                    <i class="fa-solid fa-file-excel"></i> Open Excel Analytics
-                </a>
+                <h3 class="chart-title">GRAF INTENSITI MASA-NYATA</h3>
+                <div class="chart-container"><canvas id="liveChart"></canvas></div>
             </div>
         </section>
 
-        <!-- SECTION: ARCHITECTURE -->
-        <section id="architecture" class="main-section">
-            <h2 class="section-title">System Flow</h2>
-            <div class="glass-card">
-                <div class="flow-node">
-                    <div class="node-num">1</div>
-                    <div>
-                        <h4>Sensing Layer</h4>
-                        <p>AS3935 Franklin Sensor + ESP32</p>
-                    </div>
-                </div>
-                <div class="flow-node">
-                    <div class="node-num">2</div>
-                    <div>
-                        <h4>Transmission</h4>
-                        <p>Blynk Cloud IoT Protocol</p>
-                    </div>
-                </div>
-                <div class="flow-node" style="border:none;">
-                    <div class="node-num">3</div>
-                    <div>
-                        <h4>Storage</h4>
-                        <p>Automated Google Sheets Logging</p>
-                    </div>
-                </div>
+        <section id="history" class="main-section">
+            <div class="section-header">
+                <h2>Rekod Amaran</h2>
+                <button onclick="downloadCSV()" class="export-btn-small">Muat Turun CSV</button>
+            </div>
+            <div class="table-container">
+                <table id="history-table">
+                    <thead>
+                        <tr>
+                            <th>Masa</th>
+                            <th>Jarak (KM)</th>
+                            <th>Tahap Amaran</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body">
+                        </tbody>
+                </table>
             </div>
         </section>
+
+        <section id="analytics" class="main-section">
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <span class="label">JUMLAH KESANAN</span>
+                    <h2 id="total-strikes">0</h2>
+                </div>
+                <div class="stat-card">
+                    <span class="label">PURATA JARAK</span>
+                    <h2 id="avg-dist">0 KM</h2>
+                </div>
+            </div>
+            <div class="chart-box">
+                <h3 class="chart-title">TABURAN TAHAP BAHAYA</h3>
+                <div class="chart-container"><canvas id="pieChart"></canvas></div>
+            </div>
+        </section>
+
     </div>
-
-    <footer class="main-footer">
-        <p>&copy; 2026 StormWatch | Developed for UTHM Pagoh</p>
-    </footer>
 
     <script src="script.js"></script>
 </body>
