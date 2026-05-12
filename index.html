@@ -3,98 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StormWatch | UTHM Pagoh IoT</title>
+    <title>StormWatch | IoT Lightning Monitor</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <!-- Lightning Flash Overlay -->
     <div id="flash-effect" class="flash-overlay"></div>
 
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo">STORM<span>WATCH</span></div>
-            <div class="mobile-menu" onclick="toggleMenu()">
-                <i class="fa-solid fa-bars"></i>
-            </div>
-            <ul id="nav-links" class="nav-links">
-                <li class="nav-item active" data-target="home">Home</li>
-                <li class="nav-item" data-target="project">Dashboard</li>
-                <li class="nav-item" data-target="mission">Mission</li>
+            <ul class="nav-links">
+                <li class="nav-item active" data-target="dashboard">Dashboard</li>
+                <li class="nav-item" data-target="info">System Info</li>
             </ul>
         </div>
     </nav>
 
     <div class="content-wrapper">
-        <!-- HOME SECTION -->
-        <section id="home" class="main-section active">
-            <div class="hero-box">
-                <h1>UTHM Pagoh Storm Monitoring</h1>
-                <p>Advanced IoT early warning system for campus safety.</p>
-                <button class="excel-btn" style="margin-top:20px" onclick="document.querySelector('[data-target=project]').click()">View Live Data</button>
-            </div>
-        </section>
+        <section id="dashboard" class="main-section active">
+            <div id="status-banner" class="status-safe">SYSTEM INITIALIZING...</div>
 
-        <!-- DASHBOARD SECTION -->
-        <section id="project" class="main-section">
-            <h2 class="section-title">Live Intelligence</h2>
-            
-            <div id="status-banner" class="pulse">WAITING FOR DATA...</div>
-
-            <div class="stat-grid-mobile">
+            <div class="stat-grid">
                 <div class="stat-card">
-                    <span class="label">STORM PROXIMITY</span>
-                    <h2 id="storm-distance">-- KM</h2>
-                    <div class="intensity-bar">
-                        <div id="intensity-fill" style="width: 0%"></div>
-                    </div>
-                    <p id="intensity-text">Scanning Sky...</p>
+                    <span class="label"><i class="fa-solid fa-cloud-bolt"></i> STORM DISTANCE</span>
+                    <h2 id="distance-val">--</h2>
+                    <span class="unit">KILOMETERS</span>
                 </div>
 
                 <div class="stat-card">
-                    <span class="label">SYSTEM STATUS</span>
-                    <div class="status-flex">
+                    <span class="label"><i class="fa-solid fa-triangle-exclamation"></i> ALERT LEVEL</span>
+                    <h2 id="alert-text">SCANNING</h2>
+                    <div class="status-indicator">
                         <span id="status-dot" class="dot"></span>
-                        <span id="esp-status">CONNECTING</span>
+                        <span id="connection-status">CONNECTING TO BLYNK...</span>
                     </div>
-                    <p id="myt-clock">--:--:--</p>
                 </div>
-            </div>
-
-            <div class="glass-card location-card">
-                <h3><i class="fa-solid fa-location-dot"></i> UTHM Pagoh Hub</h3>
-                <p>Coordinates: <strong>2.1481° N, 102.7303° E</strong></p>
-                <p>Status: <span style="color: #00ff88;">Monitoring Active</span></p>
             </div>
 
             <div class="chart-box">
-                <h3 style="margin-bottom:15px; font-size:0.9rem">STORM INTENSITY GRAPH</h3>
+                <h3 class="chart-title">DISTANCE TREND (KM vs TIME)</h3>
                 <div class="chart-container">
-                    <canvas id="lightningChart"></canvas>
+                    <canvas id="stormChart"></canvas>
                 </div>
-            </div>
-
-            <div class="excel-section">
-                <p style="font-size: 0.8rem; margin-bottom:10px; color:#aaa">DATA LOGGING ACTIVE</p>
-                <a href="YOUR_GOOGLE_SHEET_URL" target="_blank" class="excel-btn">
-                    <i class="fa-solid fa-file-excel"></i> Open Excel Folder
-                </a>
             </div>
         </section>
 
-        <!-- MISSION SECTION -->
-        <section id="mission" class="main-section">
-            <div class="glass-card mission-content">
-                <i class="fa-solid fa-shield-halved"></i>
-                <p>"To leverage IoT technology in creating a safer campus environment by providing accurate, real-time lightning alerts."</p>
+        <section id="info" class="main-section">
+            <div class="glass-card">
+                <h3><i class="fa-solid fa-microchip"></i> Hardware Configuration</h3>
+                <p><strong>Controller:</strong> ESP32 DevKit V1</p>
+                <p><strong>Sensor:</strong> AS3935 Franklin Lightning Sensor</p>
+                <p><strong>Display:</strong> ILI9341 TFT LCD</p>
+                <hr>
+                <p><strong>Project Lead:</strong> Ameer Hakim</p>
+                <p><strong>Matric No:</strong> CN230083</p>
             </div>
         </section>
     </div>
 
     <footer class="main-footer">
-        <p>&copy; 2026 StormWatch Project | UTHM Pagoh</p>
+        <p>&copy; 2026 StormWatch Project | UTHM Pagoh IoT</p>
     </footer>
 
     <script src="script.js"></script>
