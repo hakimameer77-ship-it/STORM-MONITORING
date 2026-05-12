@@ -1,102 +1,114 @@
+// --- CONFIGURATION ---
 const BLYNK_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd";
-let stormChart;
+const V_DIST = "V1"; 
+const URL_DIST = `https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&${V_DIST}`;
 
-// Digital Clock
+// --- 1. LIGHTNING STRIKE LOGIC ---
+const flashLayer = document.getElementById('flash-effect');
+function triggerLightning() {
+    flashLayer.classList.add('strike-anim');
+    setTimeout(() => flashLayer.classList.remove('strike-anim'), 400);
+    
+    // Random interval for the next flash (between 5 to 15 seconds)
+    const nextStrike = Math.random() * (15000 - 5000) + 5000;
+    setTimeout(triggerLightning, nextStrike);
+}
+triggerLightning();
+
+// --- 2. RESPONSIVE NAVIGATION ---
+function toggleMenu() {
+    document.getElementById('nav-links').classList.toggle('open');
+}
+
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+        // Toggle Active Class in Nav
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+        
+        // Switch Section
+        const target = item.getAttribute('data-target');
+        document.querySelectorAll('.main-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(target).classList.add('active');
+        
+        // Close Mobile Menu if open
+        if(window.innerWidth <= 850) toggleMenu();
+    });
+});
+
+// --- 3. REAL-TIME CLOCK (MYT) ---
 setInterval(() => {
-    document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-GB');
+    document.getElementById('myt-clock').innerText = "MYT Time: " + new Date().toLocaleTimeString('en-US', { hour12: true });
 }, 1000);
 
-// Sync Data from Blynk
-async function syncData() {
-    try {
-        const response = await fetch(`https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&V1`);
-        if (response.ok) {
-            const data = await response.json();
-            // Logic: Only process if data is active/not null
-            if (data !== null && data !== undefined) {
-                updateUI(data);
-                toggleConnection(true);
-            }
-        } else {
-            toggleConnection(false);
-        }
-    } catch (e) {
-        toggleConnection(false);
-    }
-}
-
-function toggleConnection(isActive) {
-    const dot = document.getElementById('status-dot');
-    const text = document.getElementById('status-text');
-    dot.className = isActive ? 'dot-green' : 'dot-red';
-    text.innerText = isActive ? 'ONLINE' : 'OFFLINE';
-}
-
-function updateUI(val) {
-    document.getElementById('dist-val').innerText = val;
-    const pill = document.getElementById('alert-pill');
-    
-    if (val <= 10) {
-        pill.innerText = "DANGER: IMMEDIATE THREAT!";
-        pill.className = "pill-danger";
-    } else {
-        pill.innerText = "STATUS: SAFE (NO THREAT)";
-        pill.className = "pill-safe";
-    }
-
-    // Chart Update
-    const now = new Date().toLocaleTimeString('en-GB');
-    if (stormChart.data.labels.length > 15) {
-        stormChart.data.labels.shift();
-        stormChart.data.datasets[0].data.shift();
-    }
-    stormChart.data.labels.push(now);
-    stormChart.data.datasets[0].data.push(val);
-    stormChart.update();
-
-    // Table Update
-    if (val < 40) {
-        const tbody = document.getElementById('log-body');
-        const row = `<tr>
-            <td style="color: ${val <= 10 ? '#ff3366' : '#00ff88'}">${val <= 10 ? 'DANGER' : 'NORMAL'}</td>
-            <td>${now}</td>
-            <td>${val} KM</td>
-        </tr>`;
-        tbody.insertAdjacentHTML('afterbegin', row);
-        if (tbody.rows.length > 10) tbody.deleteRow(10);
-    }
-}
-
-// Chart Initializer
-const ctx = document.getElementById('stormChart').getContext('2d');
-stormChart = new Chart(ctx, {
+// --- 4. CHART.JS CONFIGURATION ---
+const ctx = document.getElementById('lightningChart').getContext('2d');
+const liveChart = new Chart(ctx, {
     type: 'line',
     data: {
         labels: [],
         datasets: [{
+            label: 'Distance (KM)',
             data: [],
-            borderColor: '#00d2ff',
-            borderWidth: 3,
-            pointRadius: 0,
-            tension: 0.4,
+            borderColor: '#ff9f1c',
+            backgroundColor: 'rgba(255,159,28,0.1)',
             fill: true,
-            backgroundColor: 'rgba(0, 210, 255, 0.05)'
+            tension: 0.4,
+            pointRadius: 4
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-            y: { beginAtZero: true, max: 40, grid: { color: 'rgba(255,255,255,0.05)' } },
-            x: { display: false }
-        },
-        plugins: { legend: { display: false } }
+            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+            x: { grid: { display: false } }
+        }
     }
 });
 
-function exportCSV() {
-    alert("Generating CSV report for UTHM Pagoh Hub...");
+// --- 5. BLYNK API DATA FETCHING ---
+async function fetchBlynkData() {
+    try {
+        const response = await fetch(URL_DIST);
+        const data = await response.text();
+        const distance = parseInt(data);
+
+        if (!isNaN(distance)) {
+            updateUI(distance);
+            setSystemStatus(true);
+        } else {
+            setSystemStatus(false);
+        }
+    } catch (error) {
+        console.error("Error fetching Blynk data:", error);
+        setSystemStatus(false);
+    }
 }
 
-// Start Syncing
-setInterval(syncData, 2000);
+function setSystemStatus(isOnline) {
+    const statusText = document.getElementById('esp-status');
+    const dot = document.getElementById('status-dot');
+    statusText.innerText = isOnline ? "ONLINE" : "OFFLINE";
+    statusText.style.color = isOnline ? "#00ff88" : "#ff4757";
+    dot.style.background = isOnline ? "#00ff88" : "#ff4757";
+}
+
+function updateUI(dist) {
+    document.getElementById('storm-distance').innerText = dist + " KM";
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // Limit chart data to last 15 entries
+    if (liveChart.data.labels.length > 15) {
+        liveChart.data.labels.shift();
+        liveChart.data.datasets[0].data.shift();
+    }
+    
+    liveChart.data.labels.push(now);
+    liveChart.data.datasets[0].data.push(dist);
+    liveChart.update();
+}
+
+// Automatically fetch data every 5 seconds
+setInterval(fetchBlynkData, 5000);
+fetchBlynkData();
