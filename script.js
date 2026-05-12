@@ -1,172 +1,133 @@
-// ==========================================
-// 1. UI & NAVIGATION LOGIC
-// ==========================================
-const navItems = document.querySelectorAll('.nav-item');
-const sections = document.querySelectorAll('.main-section');
+const CONFIG = {
+    TOKEN: "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd",
+    URL: "https://blynk.cloud/external/api/getAll?token=",
+    DANGER: 10, WARNING: 25
+};
 
-navItems.forEach(item => {
-    item.addEventListener('click', () => {
-        const targetId = item.getAttribute('data-target');
-        
-        // Update Nav Active State
-        navItems.forEach(nav => nav.classList.remove('active'));
-        item.classList.add('active');
-        
-        // Update Section Active State
-        sections.forEach(sec => {
-            sec.classList.remove('active');
-            if (sec.id === targetId) sec.classList.add('active');
-        });
+let liveChart, pieChart;
+let historyData = JSON.parse(localStorage.getItem('storm_history')) || [];
 
-        // Close mobile menu if open
-        if (window.innerWidth <= 850) {
-            document.getElementById('nav-links').classList.remove('open');
-        }
+// 1. Navigation Logic
+function navigateTo(targetId) {
+    document.querySelectorAll('.nav-item, .main-section').forEach(el => el.classList.remove('active'));
+    document.querySelector(`[data-target="${targetId}"]`).classList.add('active');
+    document.getElementById(targetId).classList.add('active');
+    if(targetId === 'analytics') renderAnalytics();
+}
+
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => navigateTo(item.dataset.target));
+});
+
+// 2. Initial Charts
+function initCharts() {
+    const ctxLive = document.getElementById('liveChart').getContext('2d');
+    liveChart = new Chart(ctxLive, {
+        type: 'line',
+        data: { labels: [], datasets: [{ label: 'Jarak (KM)', data: [], borderColor: '#ff9f1c', tension: 0.4, fill: true, backgroundColor: 'rgba(255,159,28,0.1)' }]},
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 40 } } }
     });
-});
 
-function toggleMenu() {
-    document.getElementById('nav-links').classList.toggle('open');
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    pieChart = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: { labels: ['Danger', 'Warning', 'Safe'], datasets: [{ data: [0,0,0], backgroundColor: ['#ff4757', '#ffa502', '#00d2ff'] }]}
+    });
 }
 
-// Live Clock (MYT)
-function updateClock() {
-    const now = new Date();
-    const clockEl = document.getElementById('myt-clock');
-    if (clockEl) {
-        clockEl.innerText = now.toLocaleTimeString('en-GB', { hour12: false });
-    }
-}
-setInterval(updateClock, 1000);
-
-// ==========================================
-// 2. BLYNK API CONFIGURATION
-// ==========================================
-const BLYNK_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd"; 
-const URL_GET_ALL = `https://blynk.cloud/external/api/getAll?token=${BLYNK_TOKEN}`;
-
-const DANGER_THRESHOLD = 10; // KM
-const WARNING_THRESHOLD = 25; // KM
-
-// ==========================================
-// 3. CHART INITIALIZATION
-// ==========================================
-let lightningChart;
-const ctx = document.getElementById('lightningChart').getContext('2d');
-
-lightningChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: [],
-        datasets: [{
-            label: 'Intensity (KM)',
-            data: [],
-            borderColor: '#ff9f1c',
-            backgroundColor: 'rgba(255, 159, 28, 0.1)',
-            fill: true,
-            tension: 0.4,
-            borderWidth: 2,
-            pointRadius: 2
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-            y: { beginAtZero: true, max: 40, grid: { color: 'rgba(255,255,255,0.05)' } },
-            x: { grid: { display: false } }
-        }
-    }
-});
-
-// ==========================================
-// 4. DATA FETCHING & PROCESSING
-// ==========================================
-async function fetchStormData() {
+// 3. Fetch Data
+async function updateData() {
     try {
-        const response = await fetch(URL_GET_ALL);
-        const data = await response.json();
-        
-        // V1: Distance, V2: Intensity (Percentage)
+        const res = await fetch(`${CONFIG.URL}${CONFIG.TOKEN}`);
+        const data = await res.json();
         const distance = parseInt(data.V1) || 0;
-        const intensity = parseInt(data.V2) || 0;
-
-        updateDashboardUI(distance, intensity);
+        
+        processLiveUpdate(distance);
         updateSystemStatus(true);
-    } catch (error) {
-        console.error("Blynk Connection Error:", error);
+    } catch (e) {
         updateSystemStatus(false);
     }
 }
 
-function updateDashboardUI(distance, intensity) {
-    const stormDistEl = document.getElementById('storm-distance');
-    const intensityFill = document.getElementById('intensity-fill');
-    const intensityText = document.getElementById('intensity-text');
-    const statusBanner = document.getElementById('status-banner');
-    const flashOverlay = document.getElementById('flash-effect');
+function processLiveUpdate(dist) {
+    const time = new Date().toLocaleTimeString('en-GB');
+    document.getElementById('live-distance').innerText = `${dist} KM`;
+    document.getElementById('myt-clock').innerText = time;
 
-    // 1. Update Distance
-    stormDistEl.innerText = `${distance} KM`;
+    // Logic Warna & Amaran
+    let status = "SAFE", color = "var(--safe)";
+    if(dist > 0 && dist <= CONFIG.DANGER) { status = "DANGER"; color = "var(--danger)"; triggerFlash(); }
+    else if(dist > 0 && dist <= CONFIG.WARNING) { status = "WARNING"; color = "var(--warning)"; }
 
-    // 2. Logic for Severity
-    let color = 'var(--safe)';
-    let message = "SYSTEM ACTIVE: SKY CLEAR";
-    let intensityMsg = "Normal Atmospheric Conditions";
+    const banner = document.getElementById('status-banner');
+    banner.innerText = `STATUS: ${status}`;
+    banner.style.color = color;
+    banner.style.borderColor = color;
+    document.getElementById('intensity-fill').style.width = `${( (40-dist)/40 ) * 100}%`;
+    document.getElementById('intensity-fill').style.background = color;
 
-    if (distance <= DANGER_THRESHOLD && distance > 0) {
-        color = 'var(--danger)';
-        message = "CRITICAL: LIGHTNING STRIKE PROXIMITY";
-        intensityMsg = "High Electrostatic Discharge";
-        
-        // Trigger Flash Effect
-        flashOverlay.classList.add('strike-anim');
-        setTimeout(() => flashOverlay.classList.remove('strike-anim'), 400);
-    } else if (distance <= WARNING_THRESHOLD && distance > 0) {
-        color = 'var(--warning)';
-        message = "WARNING: STORM ACTIVITY DETECTED";
-        intensityMsg = "Elevated Storm Intensity";
-    }
+    // Update Chart
+    if(liveChart.data.labels.length > 10) { liveChart.data.labels.shift(); liveChart.data.datasets[0].data.shift(); }
+    liveChart.data.labels.push(time);
+    liveChart.data.datasets[0].data.push(dist);
+    liveChart.update();
 
-    // 3. Update Visual Elements
-    statusBanner.innerText = message;
-    statusBanner.style.borderColor = color;
-    statusBanner.style.color = color;
-    
-    intensityFill.style.width = `${intensity}%`;
-    intensityFill.style.background = color;
-    intensityText.innerText = intensityMsg;
-
-    // 4. Update Chart
-    const timestamp = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    if (lightningChart.data.labels.length > 15) {
-        lightningChart.data.labels.shift();
-        lightningChart.data.datasets[0].data.shift();
-    }
-    lightningChart.data.labels.push(timestamp);
-    lightningChart.data.datasets[0].data.push(distance);
-    lightningChart.update();
-}
-
-function updateSystemStatus(isOnline) {
-    const dot = document.getElementById('status-dot');
-    const statusText = document.getElementById('esp-status');
-    
-    if (isOnline) {
-        dot.style.background = "#00ff88";
-        statusText.innerText = "ONLINE";
-    } else {
-        dot.style.background = "var(--danger)";
-        statusText.innerText = "OFFLINE";
+    // Log History jika ada perubahan jarak
+    if(dist > 0) {
+        const newRecord = { time, dist, status };
+        historyData.unshift(newRecord);
+        if(historyData.length > 50) historyData.pop();
+        localStorage.setItem('storm_history', JSON.stringify(historyData));
+        updateHistoryTable();
     }
 }
 
-// ==========================================
-// 5. INITIALIZATION
-// ==========================================
+function updateHistoryTable() {
+    const body = document.getElementById('history-body');
+    body.innerHTML = historyData.slice(0, 10).map(row => `
+        <tr>
+            <td>${row.time}</td>
+            <td>${row.dist} KM</td>
+            <td style="color:${row.status === 'DANGER' ? '#ff4757' : '#ffa502'}">${row.status}</td>
+        </tr>
+    `).join('');
+}
+
+function renderAnalytics() {
+    const total = historyData.length;
+    const avg = total > 0 ? (historyData.reduce((s, r) => s + r.dist, 0) / total).toFixed(1) : 0;
+    
+    document.getElementById('total-strikes').innerText = total;
+    document.getElementById('avg-dist').innerText = `${avg} KM`;
+
+    const counts = { DANGER: 0, WARNING: 0, SAFE: 0 };
+    historyData.forEach(r => counts[r.status]++);
+    pieChart.data.datasets[0].data = [counts.DANGER, counts.WARNING, counts.SAFE];
+    pieChart.update();
+}
+
+function triggerFlash() {
+    const f = document.getElementById('flash-effect');
+    f.classList.add('strike-anim');
+    setTimeout(() => f.classList.remove('strike-anim'), 400);
+}
+
+function updateSystemStatus(online) {
+    document.getElementById('status-dot').style.background = online ? "#00ff88" : "var(--danger)";
+    document.getElementById('esp-status').innerText = online ? "ONLINE" : "OFFLINE";
+}
+
+function downloadCSV() {
+    let csv = "Masa,Jarak,Status\n" + historyData.map(r => `${r.time},${r.dist},${r.status}`).join("\n");
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'StormWatch_History.csv'; a.click();
+}
+
+// Start
 window.onload = () => {
-    updateClock();
-    fetchStormData();
-    setInterval(fetchStormData, 3000); // Poll every 3 seconds
+    initCharts();
+    updateHistoryTable();
+    setInterval(updateData, 3000);
 };
