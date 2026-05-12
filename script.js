@@ -1,248 +1,172 @@
 // ==========================================
 // 1. UI & NAVIGATION LOGIC
 // ==========================================
-function switchTab(tabId, element) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    element.classList.add('active');
+const navItems = document.querySelectorAll('.nav-item');
+const sections = document.querySelectorAll('.main-section');
 
-    if (window.innerWidth <= 768) {
-        document.getElementById('sidebar').classList.remove('open');
-    }
+navItems.forEach(item => {
+    item.addEventListener('click', () => {
+        const targetId = item.getAttribute('data-target');
+        
+        // Update Nav Active State
+        navItems.forEach(nav => nav.classList.remove('active'));
+        item.classList.add('active');
+        
+        // Update Section Active State
+        sections.forEach(sec => {
+            sec.classList.remove('active');
+            if (sec.id === targetId) sec.classList.add('active');
+        });
+
+        // Close mobile menu if open
+        if (window.innerWidth <= 850) {
+            document.getElementById('nav-links').classList.remove('open');
+        }
+    });
+});
+
+function toggleMenu() {
+    document.getElementById('nav-links').classList.toggle('open');
 }
 
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-}
-
-// Live Clock
+// Live Clock (MYT)
 function updateClock() {
     const now = new Date();
-    document.getElementById('live-clock').innerText = now.toLocaleTimeString('en-US', { hour12: false });
+    const clockEl = document.getElementById('myt-clock');
+    if (clockEl) {
+        clockEl.innerText = now.toLocaleTimeString('en-GB', { hour12: false });
+    }
 }
 setInterval(updateClock, 1000);
-updateClock();
 
 // ==========================================
-// 2. BLYNK API & SYSTEM CONFIGURATION
+// 2. BLYNK API CONFIGURATION
 // ==========================================
 const BLYNK_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd"; 
-const URL_DIST = `https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&V1`;
-
-// Initialize Local Storage for History Log
-let systemLogs = JSON.parse(localStorage.getItem('blynkStormLogs')) || [];
+const URL_GET_ALL = `https://blynk.cloud/external/api/getAll?token=${BLYNK_TOKEN}`;
 
 const DANGER_THRESHOLD = 10; // KM
 const WARNING_THRESHOLD = 25; // KM
-let lastRecordedDistance = null;
 
 // ==========================================
 // 3. CHART INITIALIZATION
 // ==========================================
-Chart.defaults.font.family = "'Inter', sans-serif";
-Chart.defaults.color = '#64748b';
+let lightningChart;
+const ctx = document.getElementById('lightningChart').getContext('2d');
 
-const liveChart = new Chart(document.getElementById('liveChart').getContext('2d'), {
+lightningChart = new Chart(ctx, {
     type: 'line',
-    data: { 
-        labels: [], 
-        datasets: [{ 
-            label: 'Radius (KM)', 
-            data: [], 
-            borderColor: '#2563eb', 
-            backgroundColor: 'rgba(37, 99, 235, 0.05)', 
-            fill: true, 
-            tension: 0.4, 
-            borderWidth: 2, 
-            pointRadius: 0 
-        }] 
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Intensity (KM)',
+            data: [],
+            borderColor: '#ff9f1c',
+            backgroundColor: 'rgba(255, 159, 28, 0.1)',
+            fill: true,
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 2
+        }]
     },
-    options: { 
-        responsive: true, 
-        maintainAspectRatio: false, 
-        plugins: { legend: { display: false } }, 
-        scales: { 
-            y: { beginAtZero: true, max: 40, grid: { borderDash: [4, 4] } }, 
-            x: { grid: { display: false } } 
-        } 
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, max: 40, grid: { color: 'rgba(255,255,255,0.05)' } },
+            x: { grid: { display: false } }
+        }
     }
 });
 
-let barChartInstance = null;
-let pieChartInstance = null;
-
-function renderAnalyticsCharts() {
-    let d = 0, w = 0, s = 0;
-    
-    systemLogs.forEach(log => {
-        if(log.level === 'Danger') d++;
-        else if(log.level === 'Warning') w++;
-        else s++;
-    });
-
-    document.getElementById('total-detections').innerText = systemLogs.length;
-    let sumDist = systemLogs.reduce((sum, log) => sum + parseInt(log.distance), 0);
-    document.getElementById('avg-distance').innerText = systemLogs.length > 0 ? (sumDist / systemLogs.length).toFixed(1) + " KM" : "0 KM";
-    document.getElementById('danger-count').innerText = d;
-    document.getElementById('warning-count').innerText = w;
-    document.getElementById('safe-count').innerText = s;
-
-    const recentLogs = systemLogs.slice(0, 7).reverse();
-    const barLabels = recentLogs.map(log => log.time);
-    const barData = recentLogs.map(log => log.distance);
-
-    if(barChartInstance) barChartInstance.destroy();
-    if(pieChartInstance) pieChartInstance.destroy();
-
-    barChartInstance = new Chart(document.getElementById('barChart').getContext('2d'), {
-        type: 'bar',
-        data: { 
-            labels: barLabels.length ? barLabels : ['No Data'], 
-            datasets: [{ label: 'Distance (KM)', data: barData.length ? barData : [0], backgroundColor: '#3b82f6', borderRadius: 4, barThickness: 24 }] 
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
-
-    pieChartInstance = new Chart(document.getElementById('pieChart').getContext('2d'), {
-        type: 'doughnut',
-        data: { 
-            labels: ['Critical', 'Elevated', 'Normal'], 
-            datasets: [{ data: [d, w, s], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'], borderWidth: 0 }] 
-        },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom' } } }
-    });
-}
-
 // ==========================================
-// 4. FETCH BLYNK REALTIME DATA
+// 4. DATA FETCHING & PROCESSING
 // ==========================================
-async function fetchLiveBlynkData() {
+async function fetchStormData() {
     try {
-        const response = await fetch(URL_DIST);
-        if (!response.ok) throw new Error("Network response was not ok");
+        const response = await fetch(URL_GET_ALL);
+        const data = await response.json();
         
-        const textData = await response.text();
-        const distance = parseInt(textData);
+        // V1: Distance, V2: Intensity (Percentage)
+        const distance = parseInt(data.V1) || 0;
+        const intensity = parseInt(data.V2) || 0;
 
-        if (!isNaN(distance)) {
-            document.getElementById('blynk-status').innerText = "Connected";
-            document.getElementById('blynk-status').style.color = "#10b981";
-            document.getElementById('ping-indicator').style.background = "#10b981";
-            processLiveData(distance);
-        }
-    } catch (e) {
-        document.getElementById('blynk-status').innerText = "Disconnected";
-        document.getElementById('blynk-status').style.color = "#ef4444";
-        document.getElementById('ping-indicator').style.background = "#ef4444";
+        updateDashboardUI(distance, intensity);
+        updateSystemStatus(true);
+    } catch (error) {
+        console.error("Blynk Connection Error:", error);
+        updateSystemStatus(false);
     }
 }
 
-// ==========================================
-// 5. PROCESS DATA & LOG HISTORY
-// ==========================================
-function processLiveData(distance) {
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
-    const dateStr = now.toISOString().split('T')[0];
+function updateDashboardUI(distance, intensity) {
+    const stormDistEl = document.getElementById('storm-distance');
+    const intensityFill = document.getElementById('intensity-fill');
+    const intensityText = document.getElementById('intensity-text');
+    const statusBanner = document.getElementById('status-banner');
+    const flashOverlay = document.getElementById('flash-effect');
 
-    let level = "Safe";
-    let statusHTML = '<span style="color:#10b981; font-weight:600;"><i class="fa-solid fa-shield-check"></i> SAFE: Conditions normal</span>';
+    // 1. Update Distance
+    stormDistEl.innerText = `${distance} KM`;
+
+    // 2. Logic for Severity
+    let color = 'var(--safe)';
+    let message = "SYSTEM ACTIVE: SKY CLEAR";
+    let intensityMsg = "Normal Atmospheric Conditions";
+
+    if (distance <= DANGER_THRESHOLD && distance > 0) {
+        color = 'var(--danger)';
+        message = "CRITICAL: LIGHTNING STRIKE PROXIMITY";
+        intensityMsg = "High Electrostatic Discharge";
+        
+        // Trigger Flash Effect
+        flashOverlay.classList.add('strike-anim');
+        setTimeout(() => flashOverlay.classList.remove('strike-anim'), 400);
+    } else if (distance <= WARNING_THRESHOLD && distance > 0) {
+        color = 'var(--warning)';
+        message = "WARNING: STORM ACTIVITY DETECTED";
+        intensityMsg = "Elevated Storm Intensity";
+    }
+
+    // 3. Update Visual Elements
+    statusBanner.innerText = message;
+    statusBanner.style.borderColor = color;
+    statusBanner.style.color = color;
     
-    if (distance <= DANGER_THRESHOLD) {
-        level = "Danger";
-        statusHTML = '<span style="color:#ef4444; font-weight:600;"><i class="fa-solid fa-circle-exclamation"></i> CRITICAL: Strike proximity imminent</span>';
-    } else if (distance <= WARNING_THRESHOLD) {
-        level = "Warning";
-        statusHTML = '<span style="color:#f59e0b; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> WARNING: Storm activity detected</span>';
+    intensityFill.style.width = `${intensity}%`;
+    intensityFill.style.background = color;
+    intensityText.innerText = intensityMsg;
+
+    // 4. Update Chart
+    const timestamp = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    if (lightningChart.data.labels.length > 15) {
+        lightningChart.data.labels.shift();
+        lightningChart.data.datasets[0].data.shift();
     }
+    lightningChart.data.labels.push(timestamp);
+    lightningChart.data.datasets[0].data.push(distance);
+    lightningChart.update();
+}
 
-    document.getElementById('live-distance').innerText = distance + " KM";
-    document.getElementById('live-status').innerHTML = statusHTML;
-    document.getElementById('header-status').innerHTML = statusHTML; 
-    document.getElementById('latest-status').innerText = level;
-
-    if (liveChart.data.labels.length > 20) { 
-        liveChart.data.labels.shift(); 
-        liveChart.data.datasets[0].data.shift(); 
-    }
-    liveChart.data.labels.push(timeStr); 
-    liveChart.data.datasets[0].data.push(distance);
-    liveChart.update();
-
-    if (distance !== lastRecordedDistance) {
-        const newLog = { date: dateStr, time: timeStr, distance: distance, level: level };
-        systemLogs.unshift(newLog);
-        if (systemLogs.length > 200) systemLogs.pop();
-        localStorage.setItem('blynkStormLogs', JSON.stringify(systemLogs));
-        lastRecordedDistance = distance;
-
-        populateHistoryTable();
-        renderAnalyticsCharts();
+function updateSystemStatus(isOnline) {
+    const dot = document.getElementById('status-dot');
+    const statusText = document.getElementById('esp-status');
+    
+    if (isOnline) {
+        dot.style.background = "#00ff88";
+        statusText.innerText = "ONLINE";
+    } else {
+        dot.style.background = "var(--danger)";
+        statusText.innerText = "OFFLINE";
     }
 }
 
 // ==========================================
-// 6. POPULATE HISTORY TABLE
-// ==========================================
-function populateHistoryTable() {
-    const tbody = document.getElementById('table-body');
-    tbody.innerHTML = ""; 
-
-    systemLogs.forEach(record => {
-        let badgeClass = record.level.toLowerCase();
-        const row = `<tr>
-            <td><span class="badge ${badgeClass}">${record.level}</span></td>
-            <td>${record.date}</td>
-            <td>${record.time}</td>
-            <td><strong>${record.distance} KM</strong></td>
-            <td>RF Signal Logged</td>
-        </tr>`;
-        tbody.innerHTML += row;
-    });
-}
-
-// ==========================================
-// 7. CSV EXPORT & SYSTEM CLEAR
-// ==========================================
-function downloadExcel() {
-    if (systemLogs.length === 0) {
-        alert("No data to export. Waiting for Blynk data...");
-        return;
-    }
-    let csv = "Severity,Date,Time,Distance(KM),Event Classification\n";
-    systemLogs.forEach(row => { csv += `${row.level},${row.date},${row.time},${row.distance},RF Signal Logged\n`; });
-
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.setAttribute('hidden', '');
-    a.setAttribute('href', url);
-    a.setAttribute('download', 'StormWatch_Live_Log.csv');
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-}
-
-function clearSystemData() {
-    if(confirm("Adakah anda pasti mahu memadam semua rekod? Tindakan ini tidak boleh diundur.")) {
-        localStorage.removeItem('blynkStormLogs');
-        systemLogs = [];
-        lastRecordedDistance = null;
-        populateHistoryTable();
-        renderAnalyticsCharts();
-        alert("System logs cleared.");
-    }
-}
-
-// ==========================================
-// 8. SYSTEM BOOTUP
+// 5. INITIALIZATION
 // ==========================================
 window.onload = () => {
-    populateHistoryTable();
-    renderAnalyticsCharts();
-    
-    fetchLiveBlynkData();
-    setInterval(fetchLiveBlynkData, 3000); 
+    updateClock();
+    fetchStormData();
+    setInterval(fetchStormData, 3000); // Poll every 3 seconds
 };
