@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StormWatch Pro | UTHM Pagoh Hub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="flash-overlay" class="flash-overlay"></div>
+    <div class="sidebar-overlay" onclick="toggleMobileMenu()"></div>
 
-    <div class="container">
+    <div class="app-container">
         <aside class="sidebar">
             <div class="sidebar-top">
                 <div class="logo">
@@ -45,8 +46,13 @@
 
         <main class="main-area">
             <header class="top-header">
-                <div class="system-msg" id="top-banner">
-                    <span class="status-badge safe">SAFE: Conditions normal</span>
+                <div class="header-left">
+                    <button class="mobile-toggle" onclick="toggleMobileMenu()">
+                        <i class="fa-solid fa-bars-staggered"></i>
+                    </button>
+                    <div class="system-msg" id="top-banner">
+                        <span class="status-badge safe">SAFE: Conditions normal</span>
+                    </div>
                 </div>
                 <div class="clock" id="digital-clock">00:00:00</div>
             </header>
@@ -75,15 +81,15 @@
                         <div class="layer-card">
                             <div class="icon-box"><i class="fa-solid fa-tower-broadcast"></i></div>
                             <div>
-                                <h4>Transmission</h4>
-                                <p>Blynk Cloud API over HTTPS</p>
+                                <h4>Transmission Layer</h4>
+                                <p>Blynk Cloud API (HTTPS)</p>
                             </div>
                         </div>
                         <div class="layer-card">
-                            <div class="icon-box"><i class="fa-solid fa-window-maximize"></i></div>
+                            <div class="icon-box"><i class="fa-solid fa-display"></i></div>
                             <div>
-                                <h4>Application</h4>
-                                <p>Live Web Dashboard & CSV Export</p>
+                                <h4>Application Layer</h4>
+                                <p>Live Dashboard & CSV Export</p>
                             </div>
                         </div>
                     </div>
@@ -95,17 +101,17 @@
                             <h1 class="page-title">Live Telemetry</h1>
                             <p class="subtitle">Real-time lightning distance monitoring</p>
                         </div>
-                        <div class="live-sync"><span class="dot-pulse"></span> Live Feed Syncing</div>
+                        <div class="live-sync-badge"><span class="dot-pulse"></span> Live Syncing</div>
                     </div>
 
-                    <div class="proximity-card">
+                    <div class="proximity-card card shadow">
                         <p class="label-sm">Current Storm Proximity (Radius)</p>
                         <h2 class="massive-val" id="live-dist">-- KM</h2>
                         <p class="status-txt" id="live-status">SAFE: Conditions normal</p>
                     </div>
 
-                    <div class="graph-container card shadow">
-                        <h3>Real-time Tracking Matrix (Recent Logs)</h3>
+                    <div class="card shadow">
+                        <h3 class="card-title">Real-time Tracking Matrix</h3>
                         <div class="chart-wrapper">
                             <canvas id="liveChart"></canvas>
                         </div>
@@ -113,30 +119,30 @@
                 </section>
 
                 <section id="history" class="page">
-                    <div class="section-header">
+                    <div class="section-header-flex">
                         <div>
                             <h1 class="page-title">System Event Logs</h1>
-                            <p class="subtitle">Historical archive of detection events (Recorded locally)</p>
+                            <p class="subtitle">Historical archive of detection events</p>
                         </div>
-                        <button class="export-btn" onclick="exportCSV()"><i class="fa-solid fa-file-csv"></i> Export CSV Report</button>
+                        <button class="export-btn" onclick="exportCSV()"><i class="fa-solid fa-file-csv"></i> Export Report</button>
                     </div>
 
-                    <div class="mini-stats">
-                        <div class="mini-card">
-                            <div class="mini-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                            <div><p class="m-label">Critical (Danger)</p><p class="m-val" id="count-danger">0</p></div>
+                    <div class="mini-stats-grid">
+                        <div class="mini-card border-red">
+                            <div class="m-icon red"><i class="fa-solid fa-circle-exclamation"></i></div>
+                            <div><p class="m-label">Critical</p><p class="m-val" id="count-danger">0</p></div>
                         </div>
-                        <div class="mini-card">
-                            <div class="mini-icon yellow"><i class="fa-solid fa-bolt"></i></div>
-                            <div><p class="m-label">Elevated (Warning)</p><p class="m-val" id="count-warning">0</p></div>
+                        <div class="mini-card border-yellow">
+                            <div class="m-icon yellow"><i class="fa-solid fa-bolt"></i></div>
+                            <div><p class="m-label">Warning</p><p class="m-val" id="count-warning">0</p></div>
                         </div>
-                        <div class="mini-card">
-                            <div class="mini-icon green"><i class="fa-solid fa-check-double"></i></div>
-                            <div><p class="m-label">Normal (Safe)</p><p class="m-val" id="count-safe">0</p></div>
+                        <div class="mini-card border-green">
+                            <div class="m-icon green"><i class="fa-solid fa-check"></i></div>
+                            <div><p class="m-label">Safe</p><p class="m-val" id="count-safe">0</p></div>
                         </div>
                     </div>
 
-                    <div class="table-container shadow">
+                    <div class="table-outer shadow">
                         <table id="logs-table">
                             <thead>
                                 <tr>
@@ -147,31 +153,30 @@
                                     <th>CLASSIFICATION</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </section>
 
                 <section id="analytics" class="page">
                     <h1 class="page-title">Analytics Hub</h1>
-                    <p class="subtitle">Data visualization and system metrics from recorded history</p>
+                    <p class="subtitle">System metrics & visualization</p>
 
-                    <div class="stats-row">
-                        <div class="glass-stat"><p>TOTAL EVENTS</p><h3 id="total-logs">0</h3></div>
-                        <div class="glass-stat"><p>AVG PROXIMITY</p><h3 id="avg-prox">-- KM</h3></div>
-                        <div class="glass-stat"><p>LATEST STATUS</p><h3>Safe</h3></div>
-                        <div class="glass-stat"><p>SYSTEM SYNC</p><h3>Active</h3></div>
+                    <div class="analytics-top-row">
+                        <div class="stat-box"><p>TOTAL EVENTS</p><h3 id="total-logs">0</h3></div>
+                        <div class="stat-box"><p>AVG DISTANCE</p><h3 id="avg-prox">-- KM</h3></div>
+                        <div class="stat-box"><p>PEAK STATUS</p><h3>Normal</h3></div>
+                        <div class="stat-box"><p>IOT NODE</p><h3>Online</h3></div>
                     </div>
 
-                    <div class="analytics-grid">
+                    <div class="analytics-main-grid">
                         <div class="card shadow">
-                            <h3>Detection Trends (Latest Logs)</h3>
-                            <canvas id="trendChart"></canvas>
+                            <h3 class="card-title">Detection Trends</h3>
+                            <div class="chart-wrapper"><canvas id="trendChart"></canvas></div>
                         </div>
                         <div class="card shadow">
-                            <h3>Severity Distribution</h3>
-                            <canvas id="pieChart"></canvas>
+                            <h3 class="card-title">Severity Ratio</h3>
+                            <div class="chart-wrapper"><canvas id="pieChart"></canvas></div>
                         </div>
                     </div>
                 </section>
