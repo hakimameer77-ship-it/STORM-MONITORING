@@ -104,17 +104,6 @@
         }
         .card:hover { border-color: var(--accent); transform: translateY(-5px); }
 
-        /* --- SYSTEM ARCHITECTURE --- */
-        .node-num {
-            position: absolute;
-            top: 20px;
-            right: 25px;
-            font-size: 2rem;
-            font-weight: 800;
-            opacity: 0.1;
-            color: var(--accent);
-        }
-
         /* --- DASHBOARD ELEMENTS --- */
         #status-banner {
             padding: 20px;
@@ -134,8 +123,24 @@
             border-radius: 30px;
             border: 1px solid var(--border);
             margin-top: 40px;
-            height: 400px;
+            height: auto; /* Changed to auto to accommodate button */
         }
+
+        .download-btn {
+            background: var(--accent);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .download-btn:hover { background: #fff; transform: scale(1.05); }
 
         footer { border-top: 1px solid var(--border); padding: 50px 30px; text-align: center; }
         #clock { color: var(--accent); font-weight: 800; font-size: 1.2rem; }
@@ -172,22 +177,19 @@
         <h2 class="section-title">System Architecture</h2>
         <div class="grid">
             <div class="card">
-                <div class="node-num">01</div>
                 <i class="fa-solid fa-bolt-lightning" style="font-size: 2rem; color: var(--accent); margin-bottom: 20px;"></i>
                 <h3>Sensing Layer</h3>
-                <p style="color: var(--text-gray); margin-top: 10px;">Utilizes AS3935 Franklin Sensor to detect electrical activity in the atmosphere and ESP32 as the primary processor.</p>
+                <p style="color: var(--text-gray); margin-top: 10px;">Utilizes AS3935 Franklin Sensor to detect electrical activity and ESP32 as the primary processor.</p>
             </div>
             <div class="card">
-                <div class="node-num">02</div>
                 <i class="fa-solid fa-wifi" style="font-size: 2rem; color: var(--accent); margin-bottom: 20px;"></i>
                 <h3>Transmission</h3>
-                <p style="color: var(--text-gray); margin-top: 10px;">Data is sent wirelessly to Blynk Cloud using HTTPS/API protocols for remote access and real-time monitoring.</p>
+                <p style="color: var(--text-gray); margin-top: 10px;">Data is sent wirelessly to Blynk Cloud using HTTPS/API protocols for real-time monitoring.</p>
             </div>
             <div class="card">
-                <div class="node-num">03</div>
                 <i class="fa-solid fa-display" style="font-size: 2rem; color: var(--accent); margin-bottom: 20px;"></i>
                 <h3>Application</h3>
-                <p style="color: var(--text-gray); margin-top: 10px;">A responsive Web Dashboard that visualizes trend graphs and provides automatic Danger/Warning alerts.</p>
+                <p style="color: var(--text-gray); margin-top: 10px;">Responsive Web Dashboard visualizes trend graphs and provides automatic alerts.</p>
             </div>
         </div>
     </section>
@@ -196,9 +198,7 @@
         <span class="section-tag">Live Intelligence</span>
         <h2 class="section-title">Real-Time Dashboard</h2>
 
-        <div id="status-banner" style="background: rgba(255,255,255,0.05);">
-            WAITING FOR DATA...
-        </div>
+        <div id="status-banner">WAITING FOR DATA...</div>
         
         <div class="grid">
             <div class="card" style="text-align: center;">
@@ -219,7 +219,15 @@
         </div>
 
         <div class="chart-box">
-            <canvas id="lightningChart"></canvas>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="font-size: 1rem;"><i class="fa-solid fa-chart-line" style="color: var(--accent);"></i> Distance Trend</h3>
+                <button class="download-btn" onclick="downloadExcel()">
+                    <i class="fa-solid fa-file-excel"></i> DOWNLOAD DATA
+                </button>
+            </div>
+            <div style="height: 350px;">
+                <canvas id="lightningChart"></canvas>
+            </div>
         </div>
     </section>
 
@@ -260,7 +268,8 @@
                     borderColor: '#00d2ff',
                     backgroundColor: 'rgba(0, 210, 255, 0.1)',
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointRadius: 5
                 }]
             },
             options: {
@@ -268,16 +277,15 @@
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { beginAtZero: true, max: 40, grid: { color: '#111' }, ticks: { color: '#555' } },
-                    x: { grid: { display: false }, ticks: { color: '#555' } }
+                    y: { beginAtZero: true, max: 40, grid: { color: '#222' }, ticks: { color: '#777' } },
+                    x: { grid: { display: false }, ticks: { color: '#777' } }
                 }
             }
         });
 
-        // Proximity Logic (Banner Only)
+        // Proximity Logic
         function updateAlerts(dist) {
             const banner = document.getElementById('status-banner');
-            
             if (dist <= 10) {
                 banner.innerText = "🚨 DANGER: STRIKE WITHIN 10KM - SEEK SHELTER!";
                 banner.style.background = "rgba(255, 71, 87, 0.2)";
@@ -312,8 +320,10 @@
                     
                     updateAlerts(dist);
 
-                    const now = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    if (myChart.data.labels.length > 20) {
+                    const now = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+                    
+                    // Keep last 15 records in the chart
+                    if (myChart.data.labels.length > 15) {
                         myChart.data.labels.shift();
                         myChart.data.datasets[0].data.shift();
                     }
@@ -327,9 +337,37 @@
             }
         }
 
+        // FUNCTION TO DOWNLOAD DATA AS EXCEL (CSV)
+        function downloadExcel() {
+            const labels = myChart.data.labels;
+            const dataPoints = myChart.data.datasets[0].data;
+
+            if (labels.length === 0) {
+                alert("No data available to download yet!");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Timestamp (MYT),Distance (KM)\n"; 
+
+            labels.forEach((label, index) => {
+                csvContent += `${label},${dataPoints[index]}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            
+            const dateStr = new Date().toISOString().split('T')[0];
+            link.setAttribute("download", `StormWatch_Logs_${dateStr}.csv`);
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
         setInterval(updateData, 5000);
         updateData();
     </script>
 </body>
 </html>
-
