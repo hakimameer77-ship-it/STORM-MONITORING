@@ -13,13 +13,17 @@
 
     <div id="flash-effect" class="flash-overlay"></div>
 
-    <button class="menu-toggle" onclick="toggleSidebar()">
-        <i class="fa-solid fa-bars"></i>
-    </button>
+    <header class="mobile-header">
+        <div class="logo">STORM<span>WATCH</span></div>
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </header>
 
     <aside id="sidebar" class="sidebar">
         <div class="sidebar-header">
             <a href="#" class="logo">STORM<span>WATCH</span></a>
+            <button class="close-sidebar" onclick="toggleSidebar()">&times;</button>
         </div>
         
         <nav class="sidebar-nav">
@@ -54,37 +58,26 @@
             <section id="home" class="main-section active">
                 <div class="hero-box">
                     <span class="badge">UTHM Pagoh Project</span>
-                    <h1>Lightning Early Warning System</h1>
-                    <p>Protecting the campus community through real-time RF atmospheric monitoring and IoT telemetry.</p>
+                    <h1>Lightning Warning System</h1>
+                    <p>Real-time atmospheric monitoring for campus safety.</p>
                     <button class="primary-btn" onclick="navigateTo('dashboard')">Launch Dashboard</button>
                 </div>
 
                 <div class="info-grid">
                     <div class="glass-card full-width">
-                        <h3><i class="fa-solid fa-circle-info"></i> Project Overview</h3>
-                        <p>This project addresses lightning strike risks at UTHM Pagoh. Using the AS3935 Franklin sensor, the system calculates the distance of storm heads up to 40km away and provides immediate alerts via this web interface.</p>
-                    </div>
-
-                    <div class="arch-card">
-                        <i class="fa-solid fa-microchip"></i>
-                        <h4>Hardware</h4>
-                        <p>ESP32 + AS3935 sensor for signal processing.</p>
-                    </div>
-                    <div class="arch-card">
-                        <i class="fa-solid fa-wifi"></i>
-                        <h4>Cloud</h4>
-                        <p>Blynk IoT Cloud for global data synchronization.</p>
-                    </div>
-                    <div class="arch-card">
-                        <i class="fa-solid fa-code"></i>
-                        <h4>Frontend</h4>
-                        <p>Responsive JS Dashboard with Chart.js visualization.</p>
+                        <h3><i class="fa-solid fa-diagram-project"></i> System Architecture</h3>
+                        <div class="flow-container">
+                            <div class="flow-item"><span>1</span> Sensing (AS3935)</div>
+                            <div class="flow-item"><span>2</span> Processing (ESP32)</div>
+                            <div class="flow-item"><span>3</span> Cloud (Blynk)</div>
+                            <div class="flow-item"><span>4</span> UI (Dashboard)</div>
+                        </div>
                     </div>
                 </div>
             </section>
 
             <section id="dashboard" class="main-section">
-                <div id="status-banner">INITIALIZING TELEMETRY...</div>
+                <div id="status-banner">CONNECTING TO CLOUD...</div>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <span class="label">Proximity</span>
@@ -92,25 +85,27 @@
                         <div class="progress-container"><div id="intensity-fill"></div></div>
                     </div>
                     <div class="stat-card">
-                        <span class="label">System Load</span>
+                        <span class="label">Intensity</span>
                         <h2 id="live-intensity">0%</h2>
-                        <p>Electrostatic activity</p>
+                        <p>RF Activity</p>
                     </div>
                 </div>
                 <div class="graph-card">
-                    <canvas id="liveChart"></canvas>
+                    <div class="chart-wrapper">
+                        <canvas id="liveChart"></canvas>
+                    </div>
                 </div>
             </section>
 
             <section id="history" class="main-section">
                 <div class="section-header">
                     <h2>Event Logs</h2>
-                    <button class="export-btn" onclick="downloadCSV()">Download CSV</button>
+                    <button class="export-btn" onclick="downloadCSV()">Export CSV</button>
                 </div>
                 <div class="table-wrapper">
                     <table>
                         <thead>
-                            <tr><th>Time</th><th>Distance</th><th>Severity</th></tr>
+                            <tr><th>Time</th><th>Dist</th><th>Status</th></tr>
                         </thead>
                         <tbody id="history-body"></tbody>
                     </table>
@@ -120,17 +115,18 @@
             <section id="analytics" class="main-section">
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <span class="label">Total Detections</span>
+                        <span class="label">Total Events</span>
                         <h2 id="total-strikes">0</h2>
                     </div>
                     <div class="stat-card">
-                        <span class="label">Avg Proximity</span>
+                        <span class="label">Avg Distance</span>
                         <h2 id="avg-dist">0 KM</h2>
                     </div>
                 </div>
                 <div class="graph-card pie-box">
-                    <h3>Severity Distribution</h3>
-                    <div class="pie-container"><canvas id="pieChart"></canvas></div>
+                    <div class="pie-container">
+                        <canvas id="pieChart"></canvas>
+                    </div>
                 </div>
             </section>
 
