@@ -1,21 +1,49 @@
-// CONFIGURATION - Replace with your Blynk Auth Token
-const BLYNK_AUTH_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd";
-const BLYNK_API_URL = `https://blynk.cloud/external/api/get?token=${BLYNK_AUTH_TOKEN}`;
+// CONFIGURATION
+const BLYNK_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd";
+const BLYNK_URL = `https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}`;
 
-// Initialize Chart
-const ctx = document.getElementById('stormChart').getContext('2d');
-let stormChart = new Chart(ctx, {
+// 1. Sidebar Control
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+}
+
+// 2. Section Switching
+function switchSection(element) {
+    const target = element.getAttribute('data-target');
+    
+    // UI update
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    element.classList.add('active');
+    
+    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(target).classList.add('active');
+    
+    // Update Page Title
+    document.getElementById('page-title').innerText = element.innerText;
+    
+    if(window.innerWidth < 1000) toggleSidebar();
+}
+
+// 3. Live Clock
+setInterval(() => {
+    document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+}, 1000);
+
+// 4. Initialize Charts
+const ctxLive = document.getElementById('liveChart').getContext('2d');
+let liveChart = new Chart(ctxLive, {
     type: 'line',
     data: {
         labels: [],
         datasets: [{
             label: 'Distance (KM)',
             data: [],
-            borderColor: '#07e000',
-            backgroundColor: 'rgba(7, 224, 0, 0.1)',
-            borderWidth: 2,
+            borderColor: '#00f2ff',
+            borderWidth: 3,
+            pointRadius: 0,
             fill: true,
-            tension: 0.3
+            backgroundColor: 'rgba(0, 242, 255, 0.05)',
+            tension: 0.4
         }]
     },
     options: {
@@ -29,84 +57,75 @@ let stormChart = new Chart(ctx, {
     }
 });
 
-// Navigation Logic
-const navItems = document.querySelectorAll('.nav-item');
-navItems.forEach(item => {
-    item.addEventListener('click', () => {
-        navItems.forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-        document.querySelectorAll('.main-section').forEach(s => s.classList.remove('active'));
-        document.getElementById(item.dataset.target).classList.add('active');
-    });
+const ctxAnalytic = document.getElementById('analyticsChart').getContext('2d');
+let analyticsChart = new Chart(ctxAnalytic, {
+    type: 'bar',
+    data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+            label: 'Strikes Detected',
+            data: [4, 8, 15, 2, 0, 12, 5],
+            backgroundColor: '#00f2ff',
+            borderRadius: 8
+        }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
 });
 
-// Flash Effect Function
-function triggerFlash() {
-    const flash = document.getElementById('flash-effect');
-    flash.classList.add('strike-anim');
-    setTimeout(() => flash.classList.remove('strike-anim'), 400);
-}
-
-// Fetch Data from Blynk
-async function updateData() {
+// 5. Fetch Data from Blynk
+async function syncBlynk() {
     try {
-        // We fetch Virtual Pin V1 (Distance)
-        const response = await fetch(`${BLYNK_API_URL}&V1`);
-        const distance = await response.json();
+        const response = await fetch(`${BLYNK_URL}&V1`);
+        const val = await response.json();
         
-        if (distance === undefined) return;
+        if (isNaN(val)) return;
 
-        // Update UI based on ESP32 Logic
-        const distEl = document.getElementById('distance-val');
-        const alertEl = document.getElementById('alert-text');
-        const banner = document.getElementById('status-banner');
-        const dot = document.getElementById('status-dot');
-        const connStatus = document.getElementById('connection-status');
+        // Update UI
+        document.getElementById('dist-val').innerText = val;
+        const bar = document.getElementById('dist-bar');
+        const percentage = ((40 - val) / 40) * 100;
+        bar.style.width = percentage + "%";
 
-        distEl.innerText = distance;
-        connStatus.innerText = "CONNECTED TO LIVE DATA";
-        dot.style.background = "#07e000";
-
-        // Level Logic
-        if (distance <= 10) {
-            alertEl.innerText = "DANGER";
-            alertEl.style.color = "#f80000";
-            banner.className = "status-danger";
-            banner.innerText = "CRITICAL: LIGHTNING DETECTED NEARBY!";
-            triggerFlash(); 
-        } else if (distance <= 20) {
-            alertEl.innerText = "WARNING";
-            alertEl.style.color = "#ffe000";
-            banner.className = "status-warning";
-            banner.innerText = "WARNING: STORM IS APPROACHING";
+        // Logic & Alerts
+        const banner = document.getElementById('alert-banner');
+        if (val <= 10) {
+            banner.className = "banner-danger";
+            banner.innerText = "WARNING: LIGHTNING DETECTED WITHIN 10KM";
+            document.getElementById('flash-effect').classList.add('strike');
+            setTimeout(() => document.getElementById('flash-effect').classList.remove('strike'), 500);
         } else {
-            alertEl.innerText = "SAFE";
-            alertEl.style.color = "#07e000";
-            banner.className = "status-safe";
-            banner.innerText = "SYSTEM SECURE - CLEAR SKIES";
+            banner.className = "banner-safe";
+            banner.innerText = "SYSTEM MONITORING ACTIVE - NO NEARBY THREATS";
         }
 
         // Update Chart
-        const now = new Date();
-        const timeLabel = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
-        
-        if (stormChart.data.labels.length > 20) {
-            stormChart.data.labels.shift();
-            stormChart.data.datasets[0].data.shift();
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        if (liveChart.data.labels.length > 20) {
+            liveChart.data.labels.shift();
+            liveChart.data.datasets[0].data.shift();
         }
-        stormChart.data.labels.push(timeLabel);
-        stormChart.data.datasets[0].data.push(distance);
-        
-        // Change chart color based on alert
-        stormChart.data.datasets[0].borderColor = (distance <= 10) ? '#f80000' : (distance <= 20 ? '#ffe000' : '#07e000');
-        stormChart.update();
+        liveChart.data.labels.push(time);
+        liveChart.data.datasets[0].data.push(val);
+        liveChart.update();
 
-    } catch (error) {
-        console.error("Blynk Fetch Error:", error);
-        document.getElementById('connection-status').innerText = "OFFLINE / ERROR";
-        document.getElementById('status-dot').style.background = "#ff0000";
-    }
+    } catch (e) { console.error("Sync Error"); }
 }
 
-// Update every 2 seconds (Matches your timer.setInterval(2000L, checkSensor))
-setInterval(updateData, 2000);
+// 6. Excel Export Simulation
+function exportData() {
+    const data = [
+        ["Timestamp", "Distance (KM)", "Alert Level", "Location"],
+        [new Date().toISOString(), document.getElementById('dist-val').innerText, "Live Data", "Pagoh Campus"]
+    ];
+    
+    let csvContent = "data:text/csv;charset=utf-8," + data.map(e => e.join(",")).join("\n");
+    let encodedUri = encodeURI(csvContent);
+    let link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "StormWatch_History.csv");
+    document.body.appendChild(link);
+    link.click();
+}
+
+// Start
+setInterval(syncBlynk, 2000);
