@@ -1,178 +1,149 @@
 const BLYNK_TOKEN = "pd3Q6apyv8yfY9lmqOu_9IF8Gy3ldLpd";
-let logs = JSON.parse(localStorage.getItem('storm_logs')) || [];
-let liveChart, trendChart, pieChart;
+let liveChart;
 
-// 1. Inisialisasi Apabila Laman Dimuatkan
-document.addEventListener('DOMContentLoaded', () => {
-    updateClock();
-    setupNav();
-    initCharts();
-    refreshUI();
-    setInterval(fetchData, 2000); // Ambil data Blynk setiap 2 saat
-});
-
-// 2. Mobile Menu Toggle
-function toggleMobileMenu() {
-    document.querySelector('.sidebar').classList.toggle('active');
+// Fungsi Buka/Tutup Sidebar di Phone
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
     document.querySelector('.sidebar-overlay').classList.toggle('active');
 }
 
-// 3. Navigasi Halaman
-function setupNav() {
-    document.querySelectorAll('.menu-item').forEach(item => {
-        item.addEventListener('click', () => {
-            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            
-            item.classList.add('active');
-            document.getElementById(item.dataset.target).classList.add('active');
-            
-            if (window.innerWidth <= 1024) toggleMobileMenu();
-        });
-    });
-}
+document.addEventListener('DOMContentLoaded', () => {
+    initClock();
+    initChart();
+    setupNavigation();
+    setInterval(syncBlynk, 2000); 
+});
 
-// 4. Integrasi Blynk
-async function fetchData() {
+async function syncBlynk() {
     try {
-        const res = await fetch(`https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&V1`);
-        const val = await res.json();
-        
-        if (typeof val === 'number') {
-            handleNewData(val);
+        const response = await fetch(`https://blynk.cloud/external/api/get?token=${BLYNK_TOKEN}&V1`);
+        if (response.ok) {
+            const val = await response.json();
+            // LOGIK: Hanya terima data jika blynk aktif (bukan null)
+            if (val !== null && val !== undefined && !isNaN(val)) {
+                updateUI(val);
+                updateStatus(true);
+            } else {
+                updateStatus(false);
+            }
+        } else {
+            updateStatus(false);
         }
     } catch (e) {
-        document.getElementById('cloud-status').innerText = "Offline";
-        document.querySelector('.status-dot').style.background = "#ef4444";
+        updateStatus(false);
     }
 }
 
-function handleNewData(val) {
-    const time = new Date().toLocaleTimeString('en-GB');
-    const date = new Date().toISOString().split('T')[0];
+function updateStatus(isActive) {
+    const dot = document.getElementById('connection-dot');
+    const text = document.getElementById('connection-status');
+    const banner = document.getElementById('system-banner');
 
-    document.getElementById('live-dist').innerText = `${val} KM`;
+    if(isActive) {
+        dot.className = "dot-online";
+        text.innerText = "ACTIVE";
+        text.style.color = "var(--neon-green)";
+    } else {
+        dot.className = "dot-offline";
+        text.innerText = "OFFLINE";
+        text.style.color = "#64748b";
+        banner.innerText = "DEVICE OFFLINE - WAITING FOR DATA...";
+        banner.style.borderColor = "var(--border)";
+    }
+}
+
+function updateUI(val) {
+    document.getElementById('dist-val').innerText = val;
+    document.getElementById('last-sync').innerText = "Last Sync: " + new Date().toLocaleTimeString();
     
-    let status = "SAFE";
+    const percentage = ((40 - val) / 40) * 100;
+    document.getElementById('dist-bar').style.width = percentage + "%";
+
+    const banner = document.getElementById('system-banner');
     if (val <= 10) {
-        status = "DANGER";
+        banner.innerText = "CRITICAL: LIGHTNING WITHIN 10KM!";
+        banner.style.color = "#ff4757";
+        banner.style.borderColor = "#ff4757";
         triggerFlash();
-    } else if (val <= 25) {
-        status = "WARNING";
+    } else {
+        banner.innerText = "SYSTEM ACTIVE: MONITORING NOMINAL";
+        banner.style.color = "var(--neon-green)";
+        banner.style.borderColor = "var(--neon-green)";
     }
 
-    // Kemaskini Banner
-    const banner = document.getElementById('top-banner');
-    banner.innerHTML = `<span class="status-badge ${status.toLowerCase()}">${status}: Conditions ${status === 'SAFE' ? 'Normal' : 'Active'}</span>`;
-
-    // Simpan Log jika nilai berubah
-    if (val < 40) {
-        saveLog({ sev: status, date, time, dist: val, class: "RF Signal Detected" });
-    }
-
-    updateLiveChart(time, val);
+    updateChart(val);
+    if(val < 40) addRow(val);
 }
 
-// 5. Carta (Charts)
-function initCharts() {
-    const commonOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
+function addRow(val) {
+    const table = document.querySelector('#logs-table tbody');
+    const row = table.insertRow(0);
+    row.innerHTML = `
+        <td style="color:${val <= 10 ? '#ff4757' : '#00f2ff'}">${val <= 10 ? 'CRITICAL' : 'NORMAL'}</td>
+        <td>${new Date().toLocaleTimeString()}</td>
+        <td>${val} KM</td>
+    `;
+    if (table.rows.length > 5) table.deleteRow(5);
+}
 
-    liveChart = new Chart(document.getElementById('liveChart'), {
+function initChart() {
+    const ctx = document.getElementById('liveTimeline').getContext('2d');
+    liveChart = new Chart(ctx, {
         type: 'line',
-        data: { labels: [], datasets: [{ data: [], borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.05)', fill: true, tension: 0.4 }] },
-        options: commonOpts
-    });
-
-    trendChart = new Chart(document.getElementById('trendChart'), {
-        type: 'bar',
-        data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ data: [5, 12, 3, 8, 2, 15, 7], backgroundColor: '#2563eb' }] },
-        options: commonOpts
-    });
-
-    pieChart = new Chart(document.getElementById('pieChart'), {
-        type: 'doughnut',
-        data: { labels: ['Danger', 'Warning', 'Safe'], datasets: [{ data: [0, 0, 0], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'] }] },
-        options: { ...commonOpts, plugins: { legend: { display: true, position: 'bottom' } } }
+        data: {
+            labels: [],
+            datasets: [{
+                data: [],
+                borderColor: '#00f2ff',
+                tension: 0.4,
+                fill: true,
+                backgroundColor: 'rgba(0, 242, 255, 0.05)',
+                pointRadius: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, max: 40, grid: { color: 'rgba(255,255,255,0.05)' } },
+                x: { display: false }
+            },
+            plugins: { legend: { display: false } }
+        }
     });
 }
 
-function updateLiveChart(label, val) {
+function updateChart(val) {
+    const time = new Date().toLocaleTimeString();
     if (liveChart.data.labels.length > 15) {
         liveChart.data.labels.shift();
         liveChart.data.datasets[0].data.shift();
     }
-    liveChart.data.labels.push(label);
+    liveChart.data.labels.push(time);
     liveChart.data.datasets[0].data.push(val);
     liveChart.update();
 }
 
-// 6. Pengurusan Log
-function saveLog(entry) {
-    logs.unshift(entry);
-    if (logs.length > 50) logs.pop();
-    localStorage.setItem('storm_logs', JSON.stringify(logs));
-    refreshUI();
+function setupNavigation() {
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            item.classList.add('active');
+            document.getElementById(item.dataset.page).classList.add('active');
+            if (window.innerWidth <= 900) toggleSidebar(); // Tutup menu lepas klik (Mobile)
+        });
+    });
 }
 
-function refreshUI() {
-    const tbody = document.querySelector('#logs-table tbody');
-    tbody.innerHTML = logs.map(l => `
-        <tr>
-            <td><span class="status-badge ${l.sev.toLowerCase()}">${l.sev}</span></td>
-            <td>${l.date}</td>
-            <td>${l.time}</td>
-            <td>${l.dist} KM</td>
-            <td>${l.class}</td>
-        </tr>
-    `).join('');
-
-    document.getElementById('total-logs').innerText = logs.length;
-    
-    const dCount = logs.filter(l => l.sev === 'DANGER').length;
-    const wCount = logs.filter(l => l.sev === 'WARNING').length;
-    const sCount = logs.filter(l => l.sev === 'SAFE').length;
-
-    document.getElementById('count-danger').innerText = dCount;
-    document.getElementById('count-warning').innerText = wCount;
-    document.getElementById('count-safe').innerText = sCount;
-
-    if (logs.length > 0) {
-        const avg = logs.reduce((sum, l) => sum + l.dist, 0) / logs.length;
-        document.getElementById('avg-prox').innerText = `${avg.toFixed(1)} KM`;
-    }
-
-    pieChart.data.datasets[0].data = [dCount, wCount, sCount];
-    pieChart.update();
-}
-
-// 7. Utiliti
-function updateClock() {
+function initClock() {
     setInterval(() => {
-        document.getElementById('digital-clock').innerText = new Date().toLocaleTimeString('en-GB');
+        document.getElementById('clock').innerText = new Date().toLocaleTimeString();
     }, 1000);
 }
 
 function triggerFlash() {
-    const f = document.getElementById('flash-overlay');
-    f.classList.add('flash-active');
-    setTimeout(() => f.classList.remove('flash-active'), 400);
-}
-
-function resetLogs() {
-    if (confirm("Delete all data history?")) {
-        logs = [];
-        localStorage.removeItem('storm_logs');
-        refreshUI();
-    }
-}
-
-function exportCSV() {
-    let csv = "Severity,Date,Time,Distance,Type\n";
-    logs.forEach(l => csv += `${l.sev},${l.date},${l.time},${l.dist},${l.class}\n`);
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `StormReport_${new Date().toLocaleDateString()}.csv`;
-    a.click();
+    const f = document.getElementById('flash-effect');
+    f.classList.add('strike');
+    setTimeout(() => f.classList.remove('strike'), 300);
 }
